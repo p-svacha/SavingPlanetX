@@ -5,17 +5,18 @@ using UnityEngine;
 public class Planet : MonoBehaviour
 {
     public bool AutoUpdate;
-
-    public PlanetGeneratorSettings Settings;
+    public GeneralSettings Settings;
     public ColorSettings ColorSettings;
+
+    public Material DefaultMaterial;
 
     [HideInInspector]
     public bool GeneralSettingsFoldout;
     [HideInInspector]
     public bool ColorSettingsFoldout;
 
-    [HideInInspector]
-    public MeshFilter PlanetMesh;
+    public MeshFilter[] DelaunayTrianglesPlane;
+    public MeshFilter[] DelaunayTrianglesSphere;
 
     public void GeneratePlanet()
     {
@@ -26,27 +27,58 @@ public class Planet : MonoBehaviour
 
     private void Initialize()
     {
-        if (PlanetMesh == null)
+        if(DelaunayTrianglesPlane.Length != 1274)
         {
-            GameObject meshObj = new GameObject("mesh");
-            meshObj.transform.parent = transform;
-            PlanetMesh = meshObj.AddComponent<MeshFilter>();
+            DelaunayTrianglesPlane = new MeshFilter[1274];
+            for(int i = 0; i < DelaunayTrianglesPlane.Length; i++)
+            {
+                GameObject triangleObject = new GameObject("plane_triangle");
+                triangleObject.transform.parent = transform;
+                MeshRenderer renderer = triangleObject.AddComponent<MeshRenderer>();
+                renderer.sharedMaterial = DefaultMaterial;
+                MeshFilter filter = triangleObject.AddComponent<MeshFilter>();
+                DelaunayTrianglesPlane[i] = filter;
+            }
+        }
+
+        if (DelaunayTrianglesSphere.Length != 1274)
+        {
+            DelaunayTrianglesSphere = new MeshFilter[1274];
+            for (int i = 0; i < DelaunayTrianglesSphere.Length; i++)
+            {
+                GameObject triangleObject = new GameObject("sphere_triangle");
+                triangleObject.transform.parent = transform;
+                MeshRenderer renderer = triangleObject.AddComponent<MeshRenderer>();
+                renderer.sharedMaterial = DefaultMaterial;
+                MeshFilter filter = triangleObject.AddComponent<MeshFilter>();
+                DelaunayTrianglesSphere[i] = filter;
+            }
         }
     }
 
     void GenerateMesh()
     {
-        Mesh mesh = new Mesh();
-        mesh.vertices = new Vector3[] { new Vector3(0, 0, 0), new Vector3(0, 0, Settings.PlanetRadius), new Vector3(Settings.PlanetRadius, 0, 0), new Vector3(Settings.PlanetRadius, 0, Settings.PlanetRadius) };
-        mesh.triangles = new int[] { 0, 1, 2, 1, 3, 2 };
-        mesh.RecalculateBounds();
-        mesh.RecalculateNormals();
-        PlanetMesh.sharedMesh = mesh;
+        
+        Mesh mesh = PlanetMeshGenerator.GetIcosahedron(Settings.PlanetRadius, Settings.Subdivisions);
+
+        foreach (MeshFilter mf in DelaunayTrianglesPlane) mf.sharedMesh = null;
+        foreach (MeshFilter mf in DelaunayTrianglesSphere) mf.sharedMesh = null;
+
+        List<Mesh> planeTriangleMeshes = PlanetMeshGenerator.GetPlaneDelaunayTriangles();
+        List<Mesh> sphereTriangleMeshes = PlanetMeshGenerator.GetSphereDelaunayTriangles();
+
+        //Debug.Log(planeTriangleMeshes.Count);
+        for(int i = 0; i < planeTriangleMeshes.Count; i++)
+        {
+            DelaunayTrianglesPlane[i].sharedMesh = planeTriangleMeshes[i];
+            DelaunayTrianglesSphere[i].sharedMesh = sphereTriangleMeshes[i];
+        }
     }
 
     void GenerateColours()
     {
-        PlanetMesh.GetComponent<MeshRenderer>().sharedMaterial.color = ColorSettings.PlanetColor;
+        foreach(MeshFilter mf in DelaunayTrianglesSphere)
+            mf.GetComponent<MeshRenderer>().sharedMaterial.color = ColorSettings.PlanetColor;
     }
 
     public void OnColorSettingsUpdated()
