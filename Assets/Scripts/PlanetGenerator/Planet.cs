@@ -59,7 +59,7 @@ public class Planet : MonoBehaviour
     void GenerateMesh()
     {
         
-        Mesh mesh = PlanetMeshGenerator.GetIcosahedron(Settings.PlanetRadius, Settings.Subdivisions);
+        PlanetMeshGenerator.CreatePlanetMesh(Settings.PlanetRadius, Settings.Subdivisions);
 
         foreach (MeshFilter mf in DelaunayTrianglesPlane) mf.sharedMesh = null;
         foreach (MeshFilter mf in DelaunayTrianglesSphere) mf.sharedMesh = null;

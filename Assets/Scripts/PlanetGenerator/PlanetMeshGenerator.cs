@@ -8,7 +8,7 @@ using UnityEngine.VFX;
 
 public class PlanetMeshGenerator : MonoBehaviour
 {
-    private static List<Polygon> m_Polygons = new List<Polygon>();
+    private static List<Triangle> m_Triangles = new List<Triangle>();
     private static List<Vector3> m_SphereVertices = new List<Vector3>();
 
     private static List<Vector2> m_VerticesDelaunayPlane = new List<Vector2>();
@@ -16,11 +16,12 @@ public class PlanetMeshGenerator : MonoBehaviour
 
     private static int[] m_DelaunayTriangles;
 
-    private static int i_NorthPole;
+    private static Dictionary<int, List<Triangle>> d_VertexTriangles = new Dictionary<int, List<Triangle>>(); // Saves for each vertex to which polygons it is connected to
+    private static Dictionary<int, List<int>> d_VertexNeighbours = new Dictionary<int, List<int>>(); // Saves for each vertex to which other vertices it is connected to
 
-    public static Mesh GetIcosahedron(float radius, int n_subdivisions)
+    public static void CreatePlanetMesh(float radius, int n_subdivisions)
     {
-        m_Polygons = new List<Polygon>();
+        m_Triangles = new List<Triangle>();
         m_SphereVertices = new List<Vector3>();
 
         // An icosahedron has 12 vertices, and
@@ -45,41 +46,33 @@ public class PlanetMeshGenerator : MonoBehaviour
 
         // And here's the formula for the 20 sides,
         // referencing the 12 vertices we just created.
-        m_Polygons.Add(new Polygon(0, 11, 5));
-        m_Polygons.Add(new Polygon(0, 5, 1));
-        m_Polygons.Add(new Polygon(0, 1, 7));
-        m_Polygons.Add(new Polygon(0, 7, 10));
-        m_Polygons.Add(new Polygon(0, 10, 11));
-        m_Polygons.Add(new Polygon(1, 5, 9));
-        m_Polygons.Add(new Polygon(5, 11, 4));
-        m_Polygons.Add(new Polygon(11, 10, 2));
-        m_Polygons.Add(new Polygon(10, 7, 6));
-        m_Polygons.Add(new Polygon(7, 1, 8));
-        m_Polygons.Add(new Polygon(3, 9, 4));
-        m_Polygons.Add(new Polygon(3, 4, 2));
-        m_Polygons.Add(new Polygon(3, 2, 6));
-        m_Polygons.Add(new Polygon(3, 6, 8));
-        m_Polygons.Add(new Polygon(3, 8, 9));
-        m_Polygons.Add(new Polygon(4, 9, 5));
-        m_Polygons.Add(new Polygon(2, 4, 11));
-        m_Polygons.Add(new Polygon(6, 2, 10));
-        m_Polygons.Add(new Polygon(8, 6, 7));
-        m_Polygons.Add(new Polygon(9, 8, 1));
+        m_Triangles.Add(new Triangle(0, 11, 5));
+        m_Triangles.Add(new Triangle(0, 5, 1));
+        m_Triangles.Add(new Triangle(0, 1, 7));
+        m_Triangles.Add(new Triangle(0, 7, 10));
+        m_Triangles.Add(new Triangle(0, 10, 11));
+        m_Triangles.Add(new Triangle(1, 5, 9));
+        m_Triangles.Add(new Triangle(5, 11, 4));
+        m_Triangles.Add(new Triangle(11, 10, 2));
+        m_Triangles.Add(new Triangle(10, 7, 6));
+        m_Triangles.Add(new Triangle(7, 1, 8));
+        m_Triangles.Add(new Triangle(3, 9, 4));
+        m_Triangles.Add(new Triangle(3, 4, 2));
+        m_Triangles.Add(new Triangle(3, 2, 6));
+        m_Triangles.Add(new Triangle(3, 6, 8));
+        m_Triangles.Add(new Triangle(3, 8, 9));
+        m_Triangles.Add(new Triangle(4, 9, 5));
+        m_Triangles.Add(new Triangle(2, 4, 11));
+        m_Triangles.Add(new Triangle(6, 2, 10));
+        m_Triangles.Add(new Triangle(8, 6, 7));
+        m_Triangles.Add(new Triangle(9, 8, 1));
 
         for (int i = 0; i < n_subdivisions; i++) Subdivide();
 
         StereographicProjectionToPlane();
         DelaunayTriangulatePoints();
         StereographicProjectionToSphere();
-             
-        Mesh mesh = new Mesh();
-        mesh.vertices = m_SphereVertices.ToArray();
-        List<int> triangles = new List<int>();
-        foreach (Polygon p in m_Polygons) triangles.AddRange(p.m_Vertices);
-        mesh.triangles = triangles.ToArray();
-        mesh.RecalculateBounds();
-        mesh.RecalculateNormals();
-        return mesh;
+        FindTriangleNeighbours();
     }
 
     public static List<Mesh> GetPlaneDelaunayTriangles()
@@ -126,28 +119,25 @@ public class PlanetMeshGenerator : MonoBehaviour
     {
         var midPointCache = new Dictionary<int, int>();
 
-        var newPolys = new List<Polygon>();
-        foreach (var poly in m_Polygons)
+        var newTriangles = new List<Triangle>();
+        foreach (var tri in m_Triangles)
         {
-            int a = poly.m_Vertices[0];
-            int b = poly.m_Vertices[1];
-            int c = poly.m_Vertices[2];
             // Use GetMidPointIndex to either create a
             // new vertex between two old vertices, or
             // find the one that was already created.
-            int ab = GetMidPointIndex(midPointCache, a, b);
-            int bc = GetMidPointIndex(midPointCache, b, c);
-            int ca = GetMidPointIndex(midPointCache, c, a);
+            int ab = GetMidPointIndex(midPointCache, tri.a, tri.b);
+            int bc = GetMidPointIndex(midPointCache, tri.b, tri.c);
+            int ca = GetMidPointIndex(midPointCache, tri.c, tri.a);
             // Create the four new polygons using our original
             // three vertices, and the three new midpoints.
-            newPolys.Add(new Polygon(a, ab, ca));
-            newPolys.Add(new Polygon(b, bc, ab));
-            newPolys.Add(new Polygon(c, ca, bc));
-            newPolys.Add(new Polygon(ab, bc, ca));
+            newTriangles.Add(new Triangle(tri.a, ab, ca));
+            newTriangles.Add(new Triangle(tri.b, bc, ab));
+            newTriangles.Add(new Triangle(tri.c, ca, bc));
+            newTriangles.Add(new Triangle(ab, bc, ca));
         }
         // Replace all our old polygons with the new set of
         // subdivided ones.
-        m_Polygons = newPolys;
+        m_Triangles = newTriangles;
     }
     private static int GetMidPointIndex(Dictionary<int, int> cache, int indexA, int indexB)
     {
@@ -188,7 +178,6 @@ public class PlanetMeshGenerator : MonoBehaviour
         {
             Vector3 v = m_SphereVertices[i];
             if (v.y != 1) m_VerticesDelaunayPlane.Add(new Vector2(v.x / (1 - v.y), v.z / (1 - v.y)));
-            else i_NorthPole = i; // save index for north pole vertex so we can fill the hole later
         }
     }
 
@@ -202,14 +191,6 @@ public class PlanetMeshGenerator : MonoBehaviour
                 (-1 + v.x * v.x + v.y * v.y) / (1 + v.x * v.x + v.y * v.y),
                 (2 * v.y) / (1 + v.x * v.x + v.y * v.y)));
 
-        // Fill north pole hole
-        int newNorthPoleIndex = m_VerticesDelaunaySphere.Count;
-        m_VerticesDelaunaySphere.Add(new Vector3(0, 1, 0));
-        // Find vertices that need to be connected to north pole
-        List<int[]> connectIds = new List<int[]>();
-        foreach(Polygon p in m_Polygons)
-            if (p.m_Vertices.Any(x => x == i_NorthPole)) connectIds.Add(p.m_Vertices.Where(x => x != i_NorthPole).ToArray());
-
 
     }
 
@@ -219,7 +200,31 @@ public class PlanetMeshGenerator : MonoBehaviour
         foreach (Vector2 v in m_VerticesDelaunayPlane) delaunatorPoints.Add(new Point(v.x, v.y));
         Delaunator del = new Delaunator(delaunatorPoints.ToArray());
         m_DelaunayTriangles = del.Triangles;
+    }
 
+    private static void FindTriangleNeighbours()
+    {
+        m_Triangles.Clear();
+        d_VertexTriangles.Clear();
+        for (int i = 0; i < m_DelaunayTriangles.Count(); i += 3)
+            m_Triangles.Add(new Triangle(m_DelaunayTriangles[i], m_DelaunayTriangles[i + 1], m_DelaunayTriangles[i + 2]));
+
+        // Create triangle list for each vertex
+        foreach (Triangle triangle in m_Triangles)
+        {
+            if (!d_VertexTriangles.ContainsKey(triangle.a)) d_VertexTriangles.Add(triangle.a, new List<Triangle>() { triangle });
+            else d_VertexTriangles[triangle.a].Add(triangle);
+
+            if (!d_VertexTriangles.ContainsKey(triangle.b)) d_VertexTriangles.Add(triangle.b, new List<Triangle>() { triangle });
+            else d_VertexTriangles[triangle.b].Add(triangle);
+
+            if (!d_VertexTriangles.ContainsKey(triangle.c)) d_VertexTriangles.Add(triangle.c, new List<Triangle>() { triangle });
+            else d_VertexTriangles[triangle.c].Add(triangle);
+        }
+
+        // Fill north pole hole by creating new north pole and connecting it to vertices with a missing triangle
+        int northPoleIndex = m_SphereVertices.Count;
+        m_SphereVertices.Add(new Vector3(0, 1, 0));
     }
 }
 
