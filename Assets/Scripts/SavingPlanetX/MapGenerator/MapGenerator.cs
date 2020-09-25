@@ -26,7 +26,6 @@ public class MapGenerator
         GenerateTemperature();
         GeneratePrecipitation();
 
-
         ApplyBiomes();
         DebugMapInformation();
 

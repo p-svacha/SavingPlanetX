@@ -16,6 +16,6 @@ public class ContinentNoise : Noise
     {
         float val = (float)(rmfn.GetValue(x * baseScale * mapData.ScaleFactor, y * baseScale * mapData.ScaleFactor, 1));
         float distanceFromEdge = Mathf.Min(x, mapData.MapWidthAbsolute - x, y, mapData.MapHeightAbsolute - y);
-        return (val > 0.2f || distanceFromEdge < 2f) ? 0f : 1f;
+        return (val > 0.2f || distanceFromEdge < 4f) ? 0f : 1f;
     }
 }

@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
     public Map Map;
+    public GameObject FogOfWarObject;
 
     public int X;
     public int Y;
@@ -18,6 +21,10 @@ public class Tile : MonoBehaviour
     public int Precipitation;
 
     public Tile[] NeighbourTiles = new Tile[6];
+
+    public bool IsInFogOfWar;
+
+    public Building Building;
 
     public void Initialize(TileData data, Map map)
     {
@@ -34,9 +41,15 @@ public class Tile : MonoBehaviour
 
         // Visual
         transform.position = data.Position;
+        FogOfWarObject.transform.position = new Vector3(data.Position.x, 0.5f, data.Position.z);
         if(GetComponent<Renderer>() != null) GetComponent<Renderer>().material.color = GetSimpleTileColor();
         else
             for (int i = 0; i < transform.childCount; i++) transform.GetChild(i).GetComponent<Renderer>().material.color = GetSimpleTileColor();
+    }
+
+    public void UpdateTile()
+    {
+        FogOfWarObject.GetComponent<Renderer>().enabled = IsInFogOfWar;
     }
 
     public void SetNeighbours()
@@ -93,4 +106,17 @@ public class Tile : MonoBehaviour
     public Tile Tile_SouthWest() { return NeighbourTiles[3]; }
     public Tile Tile_SouthEast() { return NeighbourTiles[4]; }
     public Tile Tile_East() { return NeighbourTiles[5]; }
+
+    public List<Tile> TileIsRange(int range)
+    {
+        HashSet<Tile> tilesInRange = new HashSet<Tile>() { this };
+        for(int i = 0; i < range; i++)
+        {
+            HashSet<Tile> tilesToAdd = new HashSet<Tile>();
+            foreach(Tile t in tilesInRange)
+                foreach (Tile n in t.NeighbourTiles.Where(x => x != null)) tilesToAdd.Add(n);
+            foreach (Tile t in tilesToAdd) tilesInRange.Add(t);
+        }
+        return tilesInRange.ToList();
+    }
 }

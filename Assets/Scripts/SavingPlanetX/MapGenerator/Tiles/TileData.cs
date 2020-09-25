@@ -41,6 +41,8 @@ public class TileData
         else if(Topology == TileTopology.Hills) tile = GameObject.Instantiate(TPC.BasicTile_Hills, map.transform);
         else if(Topology == TileTopology.Mountains) tile = GameObject.Instantiate(TPC.BasicTile_Mountains, map.transform);
 
+        tile.FogOfWarObject = GameObject.Instantiate(TPC.FogOfWar, map.transform);
+
         tile.Initialize(this, map);
         return tile;
     }

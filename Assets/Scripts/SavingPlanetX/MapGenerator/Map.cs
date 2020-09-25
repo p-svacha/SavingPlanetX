@@ -1,22 +1,33 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Map : MonoBehaviour
 {
-    private const int MAP_WIDTH = 60;
-    private const int MAP_HEIGHT = 40;
+    public int WidthTiles;
+    public int HeightTiles;
+    public int NumTiles;
 
-    public int WidthTiles = MAP_WIDTH;
-    public int HeightTiles = MAP_HEIGHT;
-
-    public Tile[,] Tiles = new Tile[MAP_WIDTH, MAP_HEIGHT];
+    public Tile[,] Tiles;
+    public List<Tile> TilesList = new List<Tile>();
 
     // Start is called before the first frame update
-    void Start()
+    public void InitializeMap(MapData data)
     {
-        MapData data = MapGenerator.GenerateMap(MAP_WIDTH, MAP_HEIGHT);
+        WidthTiles = data.MapWidthTiles;
+        HeightTiles = data.MapHeightTiles;
+        NumTiles = data.NumTiles;
+
+        Tiles = new Tile[WidthTiles, HeightTiles];
+
         DrawTiles(data.Tiles);
+
+        for (int y = 0; y < HeightTiles; y++)
+            for (int x = 0; x < WidthTiles; x++)
+                Tiles[x, y].SetNeighbours();
+
+        foreach (Tile t in Tiles) TilesList.Add(t);
     }
 
 
@@ -25,9 +36,6 @@ public class Map : MonoBehaviour
     {
         foreach(TileData td in tileData)
             Tiles[td.X, td.Y] = td.DrawTile(this);
-        for (int y = 0; y < MAP_HEIGHT; y++)
-            for (int x = 0; x < MAP_WIDTH; x++)
-                Tiles[x, y].SetNeighbours();
     }
 
     // Update is called once per frame
@@ -35,4 +43,13 @@ public class Map : MonoBehaviour
     {
         
     }
+
+    #region Getters
+
+    public List<Tile> GetVisibleTiles()
+    {
+        return TilesList.Where(x => !x.IsInFogOfWar).ToList();
+    }
+
+    #endregion
 }

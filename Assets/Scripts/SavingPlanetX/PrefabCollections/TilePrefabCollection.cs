@@ -24,4 +24,5 @@ public class TilePrefabCollection : MonoBehaviour
     public Tile BasicTile_Plains;
     public Tile BasicTile_Hills;
     public Tile BasicTile_Mountains;
+    public GameObject FogOfWar;
 }
