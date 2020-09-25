@@ -5,6 +5,7 @@ using UnityEngine;
 public class Triangle
 {
     public int a,b,c;
+    public int index;
 
     public Triangle(int a, int b, int c)
     {

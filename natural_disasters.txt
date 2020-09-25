@@ -1,0 +1,29 @@
+earthquake (land)
+tsunami (earthquake in water)
+wildfire (forest fire/bush fire) (land/forest)
+drought (land)
+typhoon/hurricane (water/tropics, making landfall)
+tornado (land/plain)
+rain/flood (land)
+storm surge (land/coast)
+sandstorm (land/desert)
+avalanche (land/mountain)
+mud slide (land/hill)
+monsoon (land/tropics)
+thunderstorms (anywhere)
+
+cold snap (anywhere)
+heat wave (anywhere)
+
+smog (populated)
+pandemic (land/populated)
+emp/solar flare (land/populated)
+
+volcano eruption (land/volcano)
+super volcano (thermal/geysir/fumarole) (land/anywhere)
+
+asteroid impact (anywhere)
+thermokarst (land/tundra,taiga)
+windstorm (anywhere/temperate)
+
+radioactive leak

@@ -27,9 +27,9 @@ public class Planet : MonoBehaviour
 
     private void Initialize()
     {
-        if(DelaunayTrianglesPlane.Length != 1274)
+        if(DelaunayTrianglesPlane.Length != 1280)
         {
-            DelaunayTrianglesPlane = new MeshFilter[1274];
+            DelaunayTrianglesPlane = new MeshFilter[1280];
             for(int i = 0; i < DelaunayTrianglesPlane.Length; i++)
             {
                 GameObject triangleObject = new GameObject("plane_triangle");
@@ -41,9 +41,9 @@ public class Planet : MonoBehaviour
             }
         }
 
-        if (DelaunayTrianglesSphere.Length != 1274)
+        if (DelaunayTrianglesSphere.Length != 1280)
         {
-            DelaunayTrianglesSphere = new MeshFilter[1274];
+            DelaunayTrianglesSphere = new MeshFilter[1280];
             for (int i = 0; i < DelaunayTrianglesSphere.Length; i++)
             {
                 GameObject triangleObject = new GameObject("sphere_triangle");
@@ -64,15 +64,18 @@ public class Planet : MonoBehaviour
         foreach (MeshFilter mf in DelaunayTrianglesPlane) mf.sharedMesh = null;
         foreach (MeshFilter mf in DelaunayTrianglesSphere) mf.sharedMesh = null;
 
+        List<Mesh> sphereTriangleMeshes = PlanetMeshGenerator.GetIcosahedronTriangles();
+        List<Mesh> sphereHexagonMeshes = PlanetMeshGenerator.GetIcosahedronHexagons();
+        /*
         List<Mesh> planeTriangleMeshes = PlanetMeshGenerator.GetPlaneDelaunayTriangles();
         List<Mesh> sphereTriangleMeshes = PlanetMeshGenerator.GetSphereDelaunayTriangles();
 
         //Debug.Log(planeTriangleMeshes.Count);
         for(int i = 0; i < planeTriangleMeshes.Count; i++)
-        {
             DelaunayTrianglesPlane[i].sharedMesh = planeTriangleMeshes[i];
-            DelaunayTrianglesSphere[i].sharedMesh = sphereTriangleMeshes[i];
-        }
+        */
+        for(int i = 0; i < sphereHexagonMeshes.Count; i++)
+            DelaunayTrianglesSphere[i].sharedMesh = sphereHexagonMeshes[i];
     }
 
     void GenerateColours()
