@@ -6,6 +6,14 @@ using UnityEngine;
 public class CameraHandler
 {
     private Map Map;
+
+    private Vector2 TargetPosition;
+    private float CameraHeight;
+
+    private float Angle;
+    private float TurnSpeed = 0.8f;
+    private float OffsetRadius = 4f;
+
     public CameraHandler(Map map)
     {
         Map = map;
@@ -19,11 +27,33 @@ public class CameraHandler
         float minZ = visibleTiles.Min(x => x.transform.position.z);
         float maxZ = visibleTiles.Max(x => x.transform.position.z);
 
-        float cameraX = minX + (maxX - minX) / 2;
-        float cameraY = 2 + Mathf.Max(maxX - minX, maxZ - minZ) * 0.9f;
-        float cameraZ = minZ + (maxZ - minZ) / 2;
-        Camera.main.transform.position = new Vector3(cameraX, cameraY, cameraZ);
-        Camera.main.transform.rotation = Quaternion.Euler(90, 0, 0);
+        TargetPosition.x = minX + (maxX - minX) / 2;
+        CameraHeight = 2 + Mathf.Max(maxX - minX, maxZ - minZ) * 0.9f;
+        TargetPosition.y = minZ + (maxZ - minZ) / 2;
 
+        SetPosition();
+    }
+
+    public void HandleInput()
+    {
+        if(Input.GetKey(KeyCode.Q))
+        {
+            Angle = Angle += TurnSpeed;
+            SetPosition();
+        }
+        if (Input.GetKey(KeyCode.E))
+        {
+            Angle = Angle -= TurnSpeed;
+            SetPosition();
+        }
+    }
+
+    private void SetPosition()
+    {
+        float cameraOffsetX = Mathf.Sin(Mathf.Deg2Rad * Angle) * OffsetRadius;
+        float cameraOffsetY = Mathf.Cos(Mathf.Deg2Rad * Angle) * OffsetRadius;
+
+        Camera.main.transform.position = new Vector3(TargetPosition.x + cameraOffsetX, CameraHeight, TargetPosition.y + cameraOffsetY);
+        Camera.main.transform.LookAt(new Vector3(TargetPosition.x, 0, TargetPosition.y));
     }
 }

@@ -4,6 +4,6 @@ using UnityEngine;
 
 public class BuildingPrefabCollection : MonoBehaviour
 {
-    public Building Radar;
-    public Building City;
+    public Building_Radar Radar;
+    public Building_City City;
 }

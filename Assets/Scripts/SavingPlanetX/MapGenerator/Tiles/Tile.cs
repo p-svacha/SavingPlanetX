@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -11,6 +12,9 @@ public class Tile : MonoBehaviour
 
     public int X;
     public int Y;
+
+    public Color DefaultColor;
+    public Color HoverColor;
 
     public TileType Type;
     public TileTopology Topology;
@@ -41,15 +45,15 @@ public class Tile : MonoBehaviour
 
         // Visual
         transform.position = data.Position;
-        FogOfWarObject.transform.position = new Vector3(data.Position.x, 0.5f, data.Position.z);
-        if(GetComponent<Renderer>() != null) GetComponent<Renderer>().material.color = GetSimpleTileColor();
-        else
-            for (int i = 0; i < transform.childCount; i++) transform.GetChild(i).GetComponent<Renderer>().material.color = GetSimpleTileColor();
+        FogOfWarObject.transform.position = new Vector3(data.Position.x, 0f, data.Position.z);
+        DefaultColor = GetSimpleTileColor();
+        HoverColor = new Color(DefaultColor.r - 0.3f, DefaultColor.g -0.3f, DefaultColor.b - 0.3f);
+        SetColor(DefaultColor);
     }
 
     public void UpdateTile()
     {
-        FogOfWarObject.GetComponent<Renderer>().enabled = IsInFogOfWar;
+        DrawTile();
     }
 
     public void SetNeighbours()
@@ -100,6 +104,30 @@ public class Tile : MonoBehaviour
         return Color.black;
     }
 
+    private void SetColor(Color c)
+    {
+        if (GetComponent<Renderer>() != null) GetComponent<Renderer>().material.color = c;
+        else
+            for (int i = 0; i < transform.childCount; i++) transform.GetChild(i).GetComponent<Renderer>().material.color = c;
+    }
+
+    private void DrawTile()
+    {
+        gameObject.SetActive(!IsInFogOfWar);
+        if (Building != null) Building.gameObject.SetActive(!IsInFogOfWar);
+        FogOfWarObject.SetActive(IsInFogOfWar);
+    }
+
+    public void Hover()
+    {
+        SetColor(HoverColor);
+    }
+
+    public void Unhover()
+    {
+        SetColor(DefaultColor);
+    }
+
     public Tile Tile_NorthEast() { return NeighbourTiles[0]; }
     public Tile Tile_NorthWest() { return NeighbourTiles[1]; }
     public Tile Tile_West() { return NeighbourTiles[2]; }
@@ -107,7 +135,7 @@ public class Tile : MonoBehaviour
     public Tile Tile_SouthEast() { return NeighbourTiles[4]; }
     public Tile Tile_East() { return NeighbourTiles[5]; }
 
-    public List<Tile> TileIsRange(int range)
+    public List<Tile> TilesInRange(int range)
     {
         HashSet<Tile> tilesInRange = new HashSet<Tile>() { this };
         for(int i = 0; i < range; i++)
@@ -118,5 +146,10 @@ public class Tile : MonoBehaviour
             foreach (Tile t in tilesToAdd) tilesInRange.Add(t);
         }
         return tilesInRange.ToList();
+    }
+
+    public bool IsInRangeOfBuilding(int range, Type type)
+    {
+        return TilesInRange(range).Any(x => x.Building != null && x.Building.GetType() == type);
     }
 }
