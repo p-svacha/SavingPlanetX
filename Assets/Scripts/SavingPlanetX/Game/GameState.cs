@@ -5,5 +5,6 @@ using UnityEngine;
 public enum GameState
 {
     Initializing,
-    Running
+    Idle,
+    BuildMode
 }

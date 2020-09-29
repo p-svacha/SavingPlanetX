@@ -6,6 +6,7 @@ using UnityEngine;
 public class GameModel : MonoBehaviour
 {
     public CameraHandler CameraHandler;
+    public InputHandler InputHandler;
     public GameUI GameUI;
     public BuildingPrefabCollection BPC;
     public ColorManager ColorManager;
@@ -17,12 +18,10 @@ public class GameModel : MonoBehaviour
     public Map Map;
     public List<Building> Buildings = new List<Building>();
 
-    public Tile HoveredTile;
-    public Building SelectedBuilding;
+    public Tile HoveredTile { get; private set; }
+    public Building SelectedBuilding { get; private set; }
 
     public float StarInstabilityLevel;
-
-    RaycastHit hit;
 
     // Start is called before the first frame update
     void Start()
@@ -35,39 +34,66 @@ public class GameModel : MonoBehaviour
     void Update()
     {
         CameraHandler.HandleInput();
+        InputHandler.HandleInputs();
 
-        // Tile hover
-        if (HoveredTile != null) HoveredTile.Unhover();
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        int tileLayerMask = 1 << 8;
-        if (Physics.Raycast(ray, out hit, 100, tileLayerMask))
-        {
-            HoveredTile = hit.transform.gameObject.GetComponent<Tile>();
-            if (HoveredTile == null) HoveredTile = hit.transform.gameObject.GetComponentInParent<Tile>();
-            if (HoveredTile != null) HoveredTile.Hover();
-        }
-
-        // Building Selection
-        if(Input.GetMouseButtonDown(0))
-        {
-            if (SelectedBuilding != null) SelectedBuilding.Unselect();
-            int buildingLayerMask = 1 << 9;
-            if (Physics.Raycast(ray, out hit, 100, buildingLayerMask))
-            {
-                SelectedBuilding = hit.transform.gameObject.GetComponentInParent<Building>();
-                if (SelectedBuilding != null) SelectedBuilding.Select();
-            }
-        }
-
-        if (GameState == GameState.Running)
+        if (GameState == GameState.Idle)
             foreach (Tile t in Map.TilesList) t.UpdateTile();
     }
+    
 
+    
+
+    #region Game Commands
     public void EndTurn()
     {
         foreach (Building b in Buildings) b.OnEndTurn();
     }
 
+    private void PlaceBuilding(Tile t, Building b)
+    {
+        Building newBuilding = GameObject.Instantiate(b);
+        newBuilding.Tile = t;
+        newBuilding.Model = this;
+        newBuilding.Initialize(this);
+        newBuilding.OnBuild();
+
+        t.Building = newBuilding;
+        newBuilding.transform.position = t.transform.position;
+        Buildings.Add(newBuilding);
+    }
+
+    #endregion
+
+    # region Build Mode
+    public Building PlannedBuildingPrefab { get; private set; }
+    public Building PlannedBuildingObject { get; private set; }
+
+    public void InitBuildMode(Building b)
+    {
+        if (GameState != GameState.Idle) return;
+        GameState = GameState.BuildMode;
+        PlannedBuildingPrefab = b;
+        PlannedBuildingObject = Instantiate(b);
+    }
+
+    public void PlacePlannedBuilding()
+    {
+        if (GameState != GameState.BuildMode) return;
+        if (!PlannedBuildingPrefab.CanBuildOn(HoveredTile)) return;
+        Destroy(PlannedBuildingObject.gameObject);
+        PlaceBuilding(HoveredTile, PlannedBuildingPrefab);
+        CameraHandler.FocusVisibleTiles();
+        GameState = GameState.Idle;
+    }
+
+    public void CancelBuildMode()
+    {
+        if (GameState != GameState.BuildMode) return;
+        Destroy(PlannedBuildingObject.gameObject);
+        GameState = GameState.Idle;
+    }
+
+    # endregion
 
     #region Initialize New Game
     public void StartNewGame(int mapWidth, int mapHeight)
@@ -83,6 +109,7 @@ public class GameModel : MonoBehaviour
 
         // Init other elements
         CameraHandler = new CameraHandler(Map);
+        InputHandler = new InputHandler(this);
         MarkovChainWordGenerator.Init();
 
         // Place initial random cities
@@ -102,7 +129,7 @@ public class GameModel : MonoBehaviour
 
         GameUI.Initialize(this);
 
-        GameState = GameState.Running;
+        GameState = GameState.Idle;
     }
 
     private void PlaceRandomCities()
@@ -119,18 +146,24 @@ public class GameModel : MonoBehaviour
 
     #endregion
 
-    private void PlaceBuilding(Tile t, Building b)
+    #region Setters
+    public void SetHoveredTile(Tile t)
     {
-        Building newBuilding = GameObject.Instantiate(b);
-        newBuilding.Tile = t;
-        newBuilding.Model = this;
-        newBuilding.Initialize(this);
-        newBuilding.OnBuild();
-
-        t.Building = newBuilding;
-        newBuilding.transform.position = t.transform.position;
-        Buildings.Add(newBuilding);
+        if (HoveredTile != null) HoveredTile.Unhover();
+        HoveredTile = t;
+        if (HoveredTile != null) HoveredTile.Hover();
     }
+
+    public void SetSelectedBuilding(Building b)
+    {
+        if (SelectedBuilding != null) SelectedBuilding.Unselect();
+        SelectedBuilding = b;
+        if (SelectedBuilding != null) SelectedBuilding.Select();
+    }
+
+    #endregion
+
+    #region Getters
 
     public List<Building> Cities
     {
@@ -139,5 +172,7 @@ public class GameModel : MonoBehaviour
             return Buildings.Where(x => x.GetType() == typeof(Building_City)).ToList();
         }
     }
+
+    #endregion
 
 }

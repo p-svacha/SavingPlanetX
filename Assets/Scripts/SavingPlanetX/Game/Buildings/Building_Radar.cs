@@ -8,7 +8,7 @@ public class Building_Radar : Building
 
     public override bool CanBuildOn(Tile t)
     {
-        return t.Type == TileType.Land && t.Topology != TileTopology.Mountains && t.Building == null;
+        return t != null && t.Type == TileType.Land && t.Topology != TileTopology.Mountains && t.Building == null;
     }
 
     public override void OnBuild()

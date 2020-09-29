@@ -437,7 +437,7 @@ MonoBehaviour:
   DefaultColor: {r: 0, g: 0, b: 0, a: 0}
   SelectedColor: {r: 0, g: 0, b: 0, a: 0}
   Health: 0
-  Range: 2
+  Range: 3
 --- !u!1 &7299802938749469252
 GameObject:
   m_ObjectHideFlags: 0

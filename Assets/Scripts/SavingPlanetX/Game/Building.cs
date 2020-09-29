@@ -34,7 +34,7 @@ public abstract class Building : MonoBehaviour
         SetColor(DefaultColor);
     }
 
-    private void SetColor(Color c)
+    public void SetColor(Color c)
     {
         for (int i = 0; i < transform.childCount; i++) transform.GetChild(i).GetComponent<Renderer>().material.color = c;
     }

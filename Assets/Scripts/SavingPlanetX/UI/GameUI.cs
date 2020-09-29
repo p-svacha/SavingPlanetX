@@ -15,7 +15,8 @@ public class GameUI : MonoBehaviour
 
     public Button EndTurnButton;
     public Text TileInfoText;
-    public GameObject InstabilityPanel;
+    public RectTransform InstabilityPanel;
+    public UI_BuildPanel BuildPanel;
 
     public void Initialize(GameModel model)
     {
@@ -23,6 +24,7 @@ public class GameUI : MonoBehaviour
         InitCityLabels();
         InitEndTurnButton();
         InitInstabilityPanel();
+        BuildPanel.Init(Model);
     }
 
     private void Update()
