@@ -9,9 +9,15 @@ public class Building_City : Building
 
     public UI_CityLabel UILabel;
 
-    public string Name;
+    public string CityName;
     public float InstabilityFactor = 0.05f;
     public int Relation;
+
+    public override void InitAttributes()
+    {
+        BuildingName = "City";
+        BuildingDescription = "A permanent settlement of a big group of planet inhabitants.";
+    }
 
     public override bool CanBuildOn(Tile t)
     {
@@ -22,7 +28,7 @@ public class Building_City : Building
         InstabilityFactor = 0.05f;
         Health = Model.Settings.CityHealth;
         Relation = 3;
-        Name = MarkovChainWordGenerator.GenerateWord("Province", 4);
+        CityName = MarkovChainWordGenerator.GenerateWord("Province", 4);
     }
 
     public override void OnEndTurn()

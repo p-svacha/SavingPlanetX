@@ -9,13 +9,15 @@ public class MapGenerator
 {
     private static MapData MapData;
 
+    private static bool Visualize;
     private static NoiseTester NoiseTester;
 
-    public static MapData GenerateMap(int width, int height)
+    public static MapData GenerateMap(int width, int height, bool visualize)
     {
         MapData = new MapData(width, height);
 
-        NoiseTester = GameObject.Find("MapNoiseTester").GetComponent<NoiseTester>();
+        Visualize = visualize;
+        if(Visualize) NoiseTester = GameObject.Find("MapNoiseTester").GetComponent<NoiseTester>();
 
         GenerateInitialTiles();
         GenerateContinents();
@@ -63,7 +65,7 @@ public class MapGenerator
             else td.Type = TileType.Land;
         }
 
-        NoiseTester.DisplayNoise(noise, NoiseTester.ContinentPlane, MapData);
+        if (Visualize) NoiseTester.DisplayNoise(noise, NoiseTester.ContinentPlane, MapData);
     }
 
     private static void GenerateLandTopology()
@@ -89,7 +91,7 @@ public class MapGenerator
             }
         }
 
-        NoiseTester.DisplayNoise(noise, NoiseTester.LandTopologyPlane, MapData, 0, 3);
+        if (Visualize) NoiseTester.DisplayNoise(noise, NoiseTester.LandTopologyPlane, MapData, 0, 3);
     }
 
     private static void GenerateWaterTopology()
@@ -108,7 +110,7 @@ public class MapGenerator
             else td.Topology = TileTopology.Ocean;
         }
 
-        NoiseTester.DisplayNoise(noise, NoiseTester.WaterTopologyPlane, MapData, 0, 1);
+        if (Visualize) NoiseTester.DisplayNoise(noise, NoiseTester.WaterTopologyPlane, MapData, 0, 1);
     }
 
 
@@ -122,7 +124,7 @@ public class MapGenerator
             td.WindDirection = (int)noiseValue;
         }
 
-        NoiseTester.DisplayNoise(noise, NoiseTester.WindPlane, MapData, 0, 360);
+        if (Visualize) NoiseTester.DisplayNoise(noise, NoiseTester.WindPlane, MapData, 0, 360);
     }
 
     private static void GenerateTemperature()
@@ -138,7 +140,7 @@ public class MapGenerator
             td.Temperature = (int)noiseValue;
         }
 
-        NoiseTester.DisplayNoise(noise, NoiseTester.TemperaturePlane, MapData, poleTemperature - temperatureModifyRange, equatorTemperature + temperatureModifyRange);
+        if (Visualize) NoiseTester.DisplayNoise(noise, NoiseTester.TemperaturePlane, MapData, poleTemperature - temperatureModifyRange, equatorTemperature + temperatureModifyRange);
     }
 
     private static void GeneratePrecipitation()
@@ -153,7 +155,7 @@ public class MapGenerator
             td.Precipitation = (int)noiseValue;
         }
 
-        NoiseTester.DisplayNoise(noise, NoiseTester.PrecipitationPlane, MapData, polePrecipitation, equatorPrecipitation);
+        if (Visualize) NoiseTester.DisplayNoise(noise, NoiseTester.PrecipitationPlane, MapData, polePrecipitation, equatorPrecipitation);
     }
 
     private static void IdentifyLakes()

@@ -4,6 +4,10 @@ using UnityEngine;
 
 public abstract class Building : MonoBehaviour
 {
+    public string BuildingName;
+    public string BuildingDescription;
+    public Sprite BuildingIcon;
+
     public GameModel Model;
     public Tile Tile;
 
@@ -11,6 +15,8 @@ public abstract class Building : MonoBehaviour
     public Color SelectedColor;
 
     public int Health;
+
+    public abstract void InitAttributes();
 
     public abstract bool CanBuildOn(Tile t);
     public abstract void OnEndTurn();
@@ -22,6 +28,7 @@ public abstract class Building : MonoBehaviour
         Model = model;
         DefaultColor = GetComponentInChildren<Renderer>().material.color;
         SelectedColor = Model.ColorManager.BuildingSelectedColor;
+        InitAttributes();
     }
 
     public void Select()

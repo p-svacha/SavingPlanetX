@@ -115,7 +115,7 @@ public class Tile : MonoBehaviour
     {
         gameObject.SetActive(!IsInFogOfWar);
         if (Building != null) Building.gameObject.SetActive(!IsInFogOfWar);
-        FogOfWarObject.SetActive(IsInFogOfWar);
+        FogOfWarObject.SetActive(false);
     }
 
     public void Hover()

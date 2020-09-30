@@ -6,6 +6,12 @@ public class Building_Radar : Building
 {
     public int Range = 3;
 
+    public override void InitAttributes()
+    {
+        BuildingName = "Radar";
+        BuildingDescription = "A building that provides vision of the surrounding area.";
+    }
+
     public override bool CanBuildOn(Tile t)
     {
         return t != null && t.Type == TileType.Land && t.Topology != TileTopology.Mountains && t.Building == null;

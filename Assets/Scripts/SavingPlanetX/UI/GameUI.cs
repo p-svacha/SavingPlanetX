@@ -9,14 +9,17 @@ public class GameUI : MonoBehaviour
 
     public GameModel Model;
 
+    // Prefabs
     public RectTransform LabelsPanel;
     public RectTransform PanelPrefab;
     public UI_CityLabel CityLabel;
 
+    // UI Elements
     public Button EndTurnButton;
     public Text TileInfoText;
     public RectTransform InstabilityPanel;
     public UI_BuildPanel BuildPanel;
+    public UI_SelectionInfo SelectionInfo;
 
     public void Initialize(GameModel model)
     {
@@ -25,6 +28,7 @@ public class GameUI : MonoBehaviour
         InitEndTurnButton();
         InitInstabilityPanel();
         BuildPanel.Init(Model);
+        SelectionInfo.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -65,7 +69,7 @@ public class GameUI : MonoBehaviour
         foreach (Building_City city in Model.Cities)
         {
             city.UILabel = Instantiate(CityLabel, LabelsPanel);
-            city.UILabel.CityName.text = "City of " + city.Name;
+            city.UILabel.CityName.text = "City of " + city.CityName;
             city.UILabel.Init(city);
         }
     }
@@ -92,11 +96,7 @@ public class GameUI : MonoBehaviour
     private string GetTileInfoText(Tile tile)
     {
         if (tile == null) return "";
-        if (tile.Type == TileType.Water) return tile.Topology.ToString();
-        else
-        {
-            return tile.Biome.ToString();
-        }
+        else return tile.Biome.ToString() + " " + tile.Topology.ToString();
     }
 
     

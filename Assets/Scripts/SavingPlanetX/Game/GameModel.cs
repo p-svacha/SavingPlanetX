@@ -82,7 +82,7 @@ public class GameModel : MonoBehaviour
         if (!PlannedBuildingPrefab.CanBuildOn(HoveredTile)) return;
         Destroy(PlannedBuildingObject.gameObject);
         PlaceBuilding(HoveredTile, PlannedBuildingPrefab);
-        CameraHandler.FocusVisibleTiles();
+        CameraHandler.UpdateBounds();
         GameState = GameState.Idle;
     }
 
@@ -99,7 +99,7 @@ public class GameModel : MonoBehaviour
     public void StartNewGame(int mapWidth, int mapHeight)
     {
         // Generate map
-        MapData data = MapGenerator.GenerateMap(mapWidth, mapHeight);
+        MapData data = MapGenerator.GenerateMap(mapWidth, mapHeight, false);
         Map.InitializeMap(data);
         foreach (Tile t in Map.TilesList)
             t.IsInFogOfWar = true;
@@ -156,9 +156,18 @@ public class GameModel : MonoBehaviour
 
     public void SetSelectedBuilding(Building b)
     {
-        if (SelectedBuilding != null) SelectedBuilding.Unselect();
+        if (SelectedBuilding != null)
+        {
+            SelectedBuilding.Unselect();
+            GameUI.SelectionInfo.gameObject.SetActive(false);
+        }
         SelectedBuilding = b;
-        if (SelectedBuilding != null) SelectedBuilding.Select();
+        if (SelectedBuilding != null)
+        {
+            GameUI.SelectionInfo.gameObject.SetActive(true);
+            GameUI.SelectionInfo.SetSelection(SelectedBuilding);
+            SelectedBuilding.Select();
+        }
     }
 
     #endregion
