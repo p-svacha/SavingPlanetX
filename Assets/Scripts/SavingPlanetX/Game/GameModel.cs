@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class GameModel : MonoBehaviour
 {
+    public Light Sun;
+    public Light Moon;
+
     public CameraHandler CameraHandler;
     public InputHandler InputHandler;
     public GameUI GameUI;
@@ -21,7 +24,13 @@ public class GameModel : MonoBehaviour
     public Tile HoveredTile { get; private set; }
     public Building SelectedBuilding { get; private set; }
 
+    public GameEventManager EventManager;
     public float StarInstabilityLevel;
+
+    // Visual const
+    private float CurDayCycleTime;
+    private const float DAY_CYCLE_TIME = 5f;
+    private const float MAX_MOON_INTENSITY = 0.5f;
 
     // Start is called before the first frame update
     void Start()
@@ -36,18 +45,36 @@ public class GameModel : MonoBehaviour
         CameraHandler.HandleInput();
         InputHandler.HandleInputs();
 
-        if (GameState == GameState.Idle)
-            foreach (Tile t in Map.TilesList) t.UpdateTile();
+        switch (GameState)
+        {
+            case GameState.Idle:
+                foreach (Tile t in Map.TilesList) t.UpdateTile();
+                break;
+
+            case GameState.DayCycle:
+                CurDayCycleTime += Time.deltaTime;
+                if (CurDayCycleTime >= DAY_CYCLE_TIME) StartNewDay();
+                else
+                {
+                    Vector3 sunRotation = Vector3.Lerp(new Vector3(50, -30, 0), new Vector3(410, 330, 0), CurDayCycleTime / DAY_CYCLE_TIME);
+                    Sun.transform.rotation = Quaternion.Euler(sunRotation);
+                    if (sunRotation.x < 140) Moon.intensity = 0f;
+                    else if (sunRotation.x < 220) Moon.intensity = (sunRotation.x - 140) / 80 * MAX_MOON_INTENSITY;
+                    else if (sunRotation.x < 320) Moon.intensity = MAX_MOON_INTENSITY;
+                    else if(sunRotation.x < 400 ) Moon.intensity = MAX_MOON_INTENSITY - ((sunRotation.x - 320) / 80 * MAX_MOON_INTENSITY);
+                    else Moon.intensity = 0f;
+                    if ((int)sunRotation.x == 180) foreach (Building_City city in Cities) city.CityLight.intensity = 1f;
+                    if ((int)sunRotation.x == 360) foreach (Building_City city in Cities) city.CityLight.intensity = 0f;
+                }
+                break;
+        }
     }
     
 
     
 
     #region Game Commands
-    public void EndTurn()
-    {
-        foreach (Building b in Buildings) b.OnEndTurn();
-    }
+    
 
     private void PlaceBuilding(Tile t, Building b)
     {
@@ -62,9 +89,42 @@ public class GameModel : MonoBehaviour
         Buildings.Add(newBuilding);
     }
 
+    public void IncreaseStability(float amount)
+    {
+        StarInstabilityLevel -= amount;
+        if (StarInstabilityLevel < 0) StarInstabilityLevel = 0;
+        GameUI.UpdateInstabilityPanel();
+    }
+
     #endregion
 
-    # region Build Mode
+    public void EndDay()
+    {
+        if (GameState != GameState.Idle) return;
+        GameState = GameState.DayCycle;
+        CurDayCycleTime = 0f;
+        foreach (Building b in Buildings) b.OnEndTurn();
+    }
+
+    private void StartNewDay()
+    {
+        GameState = GameState.EventDialog;
+        Sun.transform.rotation = Quaternion.Euler(50, -30, 0);
+        Moon.intensity = 0f;
+
+        EventManager.CastRandomEvent();
+    }
+
+    public void EndEvent()
+    {
+        GameState = GameState.Idle;
+    }
+
+    #region Day Cycle
+
+    #endregion
+
+    #region Build Mode
     public Building PlannedBuildingPrefab { get; private set; }
     public Building PlannedBuildingObject { get; private set; }
 
@@ -108,8 +168,9 @@ public class GameModel : MonoBehaviour
         StarInstabilityLevel = 1;
 
         // Init other elements
-        CameraHandler = new CameraHandler(Map);
+        CameraHandler = new CameraHandler(this);
         InputHandler = new InputHandler(this);
+        EventManager = new GameEventManager(this);
         MarkovChainWordGenerator.Init();
 
         // Place initial random cities

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class CameraHandler
 {
-    private Map Map;
+    private GameModel Model;
 
     private const float TURN_SPEED = 0.8f;
     private const float MOVE_SPEED = 0.1f;
@@ -27,9 +27,9 @@ public class CameraHandler
     
     
 
-    public CameraHandler(Map map)
+    public CameraHandler(GameModel model)
     {
-        Map = map;
+        Model = model;
         CurrentHeight = MinHeight;
     }
 
@@ -42,7 +42,7 @@ public class CameraHandler
 
     public void UpdateBounds()
     {
-        List<Tile> visibleTiles = Map.GetVisibleTiles();
+        List<Tile> visibleTiles = Model.Map.GetVisibleTiles();
         float minX = visibleTiles.Min(x => x.transform.position.x);
         float maxX = visibleTiles.Max(x => x.transform.position.x);
         float minZ = visibleTiles.Min(x => x.transform.position.z);

@@ -43,7 +43,7 @@ public abstract class Building : MonoBehaviour
 
     public void SetColor(Color c)
     {
-        for (int i = 0; i < transform.childCount; i++) transform.GetChild(i).GetComponent<Renderer>().material.color = c;
+        for (int i = 0; i < transform.childCount; i++) if(transform.GetChild(i).GetComponent<Renderer>() != null) transform.GetChild(i).GetComponent<Renderer>().material.color = c;
     }
 
     // Start is called before the first frame update

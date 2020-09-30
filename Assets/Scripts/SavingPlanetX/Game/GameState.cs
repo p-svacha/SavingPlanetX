@@ -6,5 +6,7 @@ public enum GameState
 {
     Initializing,
     Idle,
-    BuildMode
+    BuildMode,
+    DayCycle,
+    EventDialog,
 }

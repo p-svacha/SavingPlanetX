@@ -5,9 +5,10 @@ using UnityEngine;
 
 public class Building_City : Building
 {
-    private const int MIN_DISTANCE_TO_OTHER_CITIES = 2;
+    private const int MIN_DISTANCE_TO_OTHER_CITIES = 5;
 
     public UI_CityLabel UILabel;
+    public Light CityLight;
 
     public string CityName;
     public float InstabilityFactor = 0.05f;

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,8 +12,10 @@ public class GameUI : MonoBehaviour
 
     // Prefabs
     public RectTransform LabelsPanel;
+    public RectTransform DialogPanel;
     public RectTransform PanelPrefab;
     public UI_CityLabel CityLabel;
+    public UI_InfoBox InfoBox;
 
     // UI Elements
     public Button EndTurnButton;
@@ -21,23 +24,13 @@ public class GameUI : MonoBehaviour
     public UI_BuildPanel BuildPanel;
     public UI_SelectionInfo SelectionInfo;
 
-    public void Initialize(GameModel model)
-    {
-        Model = model;
-        InitCityLabels();
-        InitEndTurnButton();
-        InitInstabilityPanel();
-        BuildPanel.Init(Model);
-        SelectionInfo.gameObject.SetActive(false);
-    }
-
     private void Update()
     {
         // Current hovered Tile
         UpdateTileInfo(Model.HoveredTile);
 
         // Stability Panel
-        UpdateInstabilityPanel((int)Model.StarInstabilityLevel);
+        UpdateInstabilityPanel();
 
         // Building Labels
         foreach (Building_City city in Model.Cities) 
@@ -57,12 +50,22 @@ public class GameUI : MonoBehaviour
          TileInfoText.text = GetTileInfoText(tile);
     }
 
-    public void UpdateInstabilityPanel(int instability)
+    public void UpdateInstabilityPanel()
     {
         for (int i = 0; i < Model.Settings.MaxInstability; i++)
-            InstabilityPanel.transform.GetChild(i).gameObject.SetActive(i < instability);
+            InstabilityPanel.transform.GetChild(i).gameObject.SetActive(i < Model.StarInstabilityLevel);
     }
 
+    #region Initilaize UI
+    public void Initialize(GameModel model)
+    {
+        Model = model;
+        InitCityLabels();
+        InitEndTurnButton();
+        InitInstabilityPanel();
+        BuildPanel.Init(Model);
+        SelectionInfo.gameObject.SetActive(false);
+    }
 
     private void InitCityLabels()
     {
@@ -90,8 +93,20 @@ public class GameUI : MonoBehaviour
 
     private void InitEndTurnButton()
     {
-        EndTurnButton.onClick.AddListener(() => { Model.EndTurn(); });
+        EndTurnButton.onClick.AddListener(() => { Model.EndDay(); });
     }
+
+    #endregion
+
+    #region Dialog
+
+    public void ShowInfoBox(string title, string text, string idText, string buttonText = "OK", Action buttonAction = null)
+    {
+        UI_InfoBox infoBox = Instantiate(InfoBox, DialogPanel);
+        infoBox.Initialize(title, text, idText, buttonText, buttonAction);
+    }
+
+    #endregion
 
     private string GetTileInfoText(Tile tile)
     {
