@@ -20,7 +20,8 @@ public class GameUI : MonoBehaviour
     public Text TileInfoText;
     public RectTransform InstabilityPanel;
     public UI_BuildPanel BuildPanel;
-    public UI_SelectionInfo SelectionInfo;
+    public UI_BuildingInfo BuildingInfo;
+    public UI_ResourceInfo ResourceInfo;
 
     // Variables
     private bool AlertFlash;
@@ -52,7 +53,8 @@ public class GameUI : MonoBehaviour
         InitEndTurnButton();
         InitInstabilityPanel();
         BuildPanel.Init(Model);
-        SelectionInfo.gameObject.SetActive(false);
+        ResourceInfo.Init(Model);
+        BuildingInfo.gameObject.SetActive(false);
     }
 
     private void InitInstabilityPanel()

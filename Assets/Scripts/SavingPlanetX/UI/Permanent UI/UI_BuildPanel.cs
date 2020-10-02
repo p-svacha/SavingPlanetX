@@ -7,12 +7,18 @@ public class UI_BuildPanel : MonoBehaviour
 {
     public GameModel Model;
 
-    public Button BuildRadarButton;
+    public UI_Button BuildRadarButton;
 
     public void Init(GameModel model)
     {
         Model = model;
-        BuildRadarButton.onClick.AddListener(() => PlanBuild(Model.BPC.Radar));
+        BuildRadarButton.Button.onClick.AddListener(() => PlanBuild(Model.BPC.Radar));
+        UpdatePanel();
+    }
+
+    public void UpdatePanel()
+    {
+        BuildRadarButton.SetEnabled(Model.BPC.Radar.CanBuild(Model));
     }
 
     private void PlanBuild(Building b)

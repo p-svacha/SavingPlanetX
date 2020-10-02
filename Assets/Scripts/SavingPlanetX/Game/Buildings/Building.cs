@@ -22,6 +22,9 @@ public abstract class Building : MonoBehaviour
     public UI_BuildingLabel UILabel_Prefab;
     public UI_BuildingLabel UILabel;
 
+    public int RepairCost { get; protected set; }
+    public int BuildCost { get; protected set; }
+
     public abstract void InitAttributes();
 
     public abstract bool CanBuildOn(Tile t);
@@ -62,5 +65,15 @@ public abstract class Building : MonoBehaviour
     public void SetColor(Color c)
     {
         for (int i = 0; i < transform.childCount; i++) if(transform.GetChild(i).GetComponent<Renderer>() != null) transform.GetChild(i).GetComponent<Renderer>().material.color = c;
+    }
+
+    public bool CanRepair()
+    {
+        return Model.Money >= RepairCost;
+    }
+
+    public bool CanBuild(GameModel model)
+    {
+        return model.Money >= BuildCost;
     }
 }

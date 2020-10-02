@@ -31,12 +31,16 @@ public class GameModel : MonoBehaviour
     public List<Disaster> CycleDisasters;
     public Disaster ActiveDisaster;
 
+    // Game values
+    public int Money { get; private set; }
+    public float StarInstabilityLevel { get; private set; }
 
-    // Changing values
+
+    // Cycle values
     public int Cycle { get; private set; }
     private int _lastUpdateCycleTime;
     public int CycleTime { get; private set; }
-    public float StarInstabilityLevel { get; private set; }
+    
 
     // Visual const
     private float CurCycleRealTime;
@@ -179,6 +183,14 @@ public class GameModel : MonoBehaviour
     {
         StarInstabilityLevel += amount;
         GameUI.UpdateInstabilityPanel();
+    }
+
+    public void AddGold(int amount)
+    {
+        Money += amount;
+        GameUI.BuildPanel.UpdatePanel();
+        if (GameUI.BuildingInfo.gameObject.activeSelf) GameUI.BuildingInfo.UpdatePanel();
+        GameUI.ResourceInfo.UpdatePanel();
     }
 
     public void RevealMap(bool doReveal)
@@ -349,13 +361,13 @@ public class GameModel : MonoBehaviour
         if (SelectedBuilding != null)
         {
             SelectedBuilding.Unselect();
-            GameUI.SelectionInfo.gameObject.SetActive(false);
+            GameUI.BuildingInfo.gameObject.SetActive(false);
         }
         SelectedBuilding = b;
         if (SelectedBuilding != null)
         {
-            GameUI.SelectionInfo.gameObject.SetActive(true);
-            GameUI.SelectionInfo.SetSelection(SelectedBuilding);
+            GameUI.BuildingInfo.gameObject.SetActive(true);
+            GameUI.BuildingInfo.SetSelection(SelectedBuilding);
             SelectedBuilding.Select();
         }
     }

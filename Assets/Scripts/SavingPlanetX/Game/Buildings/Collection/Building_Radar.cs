@@ -10,6 +10,7 @@ public class Building_Radar : Building
     {
         BuildingName = "Radar";
         BuildingDescription = "A building that provides vision of the surrounding area.";
+        RepairCost = 5;
     }
 
     public override bool CanBuildOn(Tile t)
