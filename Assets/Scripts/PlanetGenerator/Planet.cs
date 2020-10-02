@@ -81,7 +81,7 @@ public class Planet : MonoBehaviour
     void GenerateColours()
     {
         foreach(MeshFilter mf in DelaunayTrianglesSphere)
-            mf.GetComponent<MeshRenderer>().sharedMaterial.color = ColorSettings.PlanetColor;
+            mf.GetComponent<MeshRenderer>().sharedMaterial.color = ColorSettings.UI_Darker;
     }
 
     public void OnColorSettingsUpdated()

@@ -30,6 +30,8 @@ public class Tile : MonoBehaviour
 
     public Building Building;
 
+    public bool Damaged { get; private set; }
+
     public void Initialize(TileData data, Map map)
     {
         Map = map;
@@ -51,11 +53,6 @@ public class Tile : MonoBehaviour
         SetColor(DefaultColor);
     }
 
-    public void UpdateTile()
-    {
-        DrawTile();
-    }
-
     public void SetNeighbours()
     {
         if (Y < Map.HeightTiles - 1 && (X > 0 || Y % 2 == 0)) NeighbourTiles[0] = Map.Tiles[Y % 2 == 0 ? X : X - 1, Y + 1]; // Northeast
@@ -64,18 +61,6 @@ public class Tile : MonoBehaviour
         if (Y > 0 && (X < Map.WidthTiles - 1 || Y % 2 == 1)) NeighbourTiles[3] = Map.Tiles[Y % 2 == 0 ? X + 1 : X, Y - 1]; // Southwest
         if (Y > 0 && (X > 0 || Y % 2 == 0)) NeighbourTiles[4] = Map.Tiles[Y % 2 == 0 ? X : X - 1, Y - 1]; // Northeast
         if (X > 0) NeighbourTiles[5] = Map.Tiles[X - 1, Y]; // East
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     private Color GetSimpleTileColor()
@@ -111,10 +96,23 @@ public class Tile : MonoBehaviour
             for (int i = 0; i < transform.childCount; i++) transform.GetChild(i).GetComponent<Renderer>().material.color = c;
     }
 
-    private void DrawTile()
+    private void SetTexture(Texture2D tex)
     {
-        gameObject.SetActive(!IsInFogOfWar);
-        if (Building != null) Building.gameObject.SetActive(!IsInFogOfWar);
+        if (GetComponent<Renderer>() != null) GetComponent<Renderer>().material.SetTexture("_MainTex", tex);
+        else
+            for (int i = 0; i < transform.childCount; i++) transform.GetChild(i).GetComponent<Renderer>().material.SetTexture("_MainTex", tex);
+    }
+
+    public void UpdateVisibility()
+    {
+        // Visibility
+        bool doDrawTile = IsVisible();
+        gameObject.SetActive(doDrawTile);
+        if (Building != null)
+        {
+            Building.gameObject.SetActive(doDrawTile);
+            Building.UILabel.gameObject.SetActive(doDrawTile);
+        }
         FogOfWarObject.SetActive(false);
     }
 
@@ -127,6 +125,15 @@ public class Tile : MonoBehaviour
     {
         SetColor(DefaultColor);
     }
+
+    public void TakeDamage(int damage)
+    {
+        Damaged = true;
+        if(Type == TileType.Land) SetTexture(Map.Model.MaterialCollection.DamagedTexture);
+        if (Building != null) Building.DealDamage(damage);
+    }
+
+    #region Getters
 
     public Tile Tile_NorthEast() { return NeighbourTiles[0]; }
     public Tile Tile_NorthWest() { return NeighbourTiles[1]; }
@@ -148,8 +155,29 @@ public class Tile : MonoBehaviour
         return tilesInRange.ToList();
     }
 
+    public List<Tile> TilesWithDistance(int distance)
+    {
+        HashSet<Tile> tilesInRange = new HashSet<Tile>() { this };
+        HashSet<Tile> outerTiles = new HashSet<Tile>() { this };
+        for (int i = 0; i < distance; i++)
+        {
+            outerTiles.Clear();
+            foreach (Tile t in tilesInRange)
+                foreach (Tile n in t.NeighbourTiles.Where(x => x != null && !tilesInRange.Contains(x))) outerTiles.Add(n);
+            foreach (Tile t in outerTiles) tilesInRange.Add(t);
+        }
+        return outerTiles.ToList();
+    }
+
     public bool IsInRangeOfBuilding(int range, Type type)
     {
         return TilesInRange(range).Any(x => x.Building != null && x.Building.GetType() == type);
     }
+
+    public bool IsVisible()
+    {
+        return !IsInFogOfWar || Map.IsRevealed;
+    }
+
+    #endregion
 }

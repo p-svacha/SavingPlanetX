@@ -12,9 +12,11 @@ public class GameModel : MonoBehaviour
     public InputHandler InputHandler;
     public GameUI GameUI;
     public BuildingPrefabCollection BPC;
-    public ColorManager ColorManager;
+    public MaterialCollection MaterialCollection;
 
     public GameSettings Settings;
+    public ColorSettings ColorSettings;
+    
 
     public GameState GameState = GameState.Initializing;
 
@@ -24,13 +26,31 @@ public class GameModel : MonoBehaviour
     public Tile HoveredTile { get; private set; }
     public Building SelectedBuilding { get; private set; }
 
-    public GameEventManager EventManager;
-    public float StarInstabilityLevel;
+    public GameEventHandler EventHandler;
+    public DisasterHandler DisasterHandler;
+    public List<Disaster> CycleDisasters;
+    public Disaster ActiveDisaster;
+
+
+    // Changing values
+    public int Cycle { get; private set; }
+    private int _lastUpdateCycleTime;
+    public int CycleTime { get; private set; }
+    public float StarInstabilityLevel { get; private set; }
 
     // Visual const
-    private float CurDayCycleTime;
-    private const float DAY_CYCLE_TIME = 5f;
-    private const float MAX_MOON_INTENSITY = 0.5f;
+    private float CurCycleRealTime;
+    private const float CYCLE_REAL_TIME = 5f;
+    private const float MAX_MOON_INTENSITY = 0.35f;
+
+    public const int CYCLE_OFFSET = 540; // The cycle starts at this time
+    public const int CYCLE_TIME = 1440;
+
+    // Timing values
+    public const float DISASTER_ALERT_TIME = 2f; // Time before camera moves to disaster when one happens
+    public const float DISASTER_START_TIME_OFFSET = 3f; // Time before disaster occurs after camera moved there
+    public const float DISASTER_END_TIME_OFFSET = 4f; // Time before cycle continues after a diaster occured
+    private float _disasterTime;
 
     // Start is called before the first frame update
     void Start()
@@ -42,35 +62,80 @@ public class GameModel : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        CameraHandler.HandleInput();
         InputHandler.HandleInputs();
+        CameraHandler.Update();
 
         switch (GameState)
         {
             case GameState.Idle:
-                foreach (Tile t in Map.TilesList) t.UpdateTile();
                 break;
 
             case GameState.DayCycle:
-                CurDayCycleTime += Time.deltaTime;
-                if (CurDayCycleTime >= DAY_CYCLE_TIME) StartNewDay();
-                else
+                // Time update
+                CurCycleRealTime += Time.deltaTime;
+                _lastUpdateCycleTime = CycleTime;
+                CycleTime = (int)(CurCycleRealTime / CYCLE_REAL_TIME * CYCLE_TIME);
+
+                // Cycle actions
+                foreach(Building b in Buildings)
+                    if (b.Health > 0 && b.CycleActionTime < CycleTime && b.CycleActionTime >= _lastUpdateCycleTime) b.CycleAction();
+                foreach (Disaster d in CycleDisasters)
+                    if (d.CycleTime < CycleTime && d.CycleTime >= _lastUpdateCycleTime) ShowDisaster(d);
+
+                // New day
+                if (CurCycleRealTime >= CYCLE_REAL_TIME) StartNewDay();
+
+                // Light adjustments
+                Vector3 sunRotation = Vector3.Lerp(new Vector3(50, -30, 0), new Vector3(410, 330, 0), CurCycleRealTime / CYCLE_REAL_TIME);
+                Sun.transform.rotation = Quaternion.Euler(sunRotation);
+                if (sunRotation.x < 140) Moon.intensity = 0f;
+                else if (sunRotation.x < 220) Moon.intensity = (sunRotation.x - 140) / 80 * MAX_MOON_INTENSITY;
+                else if (sunRotation.x < 320) Moon.intensity = MAX_MOON_INTENSITY;
+                else if(sunRotation.x < 400 ) Moon.intensity = MAX_MOON_INTENSITY - ((sunRotation.x - 320) / 80 * MAX_MOON_INTENSITY);
+                else Moon.intensity = 0f;
+                if ((int)sunRotation.x == 180) foreach (Building_City city in Cities) city.CityLight.intensity = 1f;
+                if ((int)sunRotation.x == 360) foreach (Building_City city in Cities) city.CityLight.intensity = 0f;
+                break;
+
+            case GameState.AlertFlash:
+                _disasterTime += Time.deltaTime;
+                if(_disasterTime > DISASTER_ALERT_TIME)
                 {
-                    Vector3 sunRotation = Vector3.Lerp(new Vector3(50, -30, 0), new Vector3(410, 330, 0), CurDayCycleTime / DAY_CYCLE_TIME);
-                    Sun.transform.rotation = Quaternion.Euler(sunRotation);
-                    if (sunRotation.x < 140) Moon.intensity = 0f;
-                    else if (sunRotation.x < 220) Moon.intensity = (sunRotation.x - 140) / 80 * MAX_MOON_INTENSITY;
-                    else if (sunRotation.x < 320) Moon.intensity = MAX_MOON_INTENSITY;
-                    else if(sunRotation.x < 400 ) Moon.intensity = MAX_MOON_INTENSITY - ((sunRotation.x - 320) / 80 * MAX_MOON_INTENSITY);
-                    else Moon.intensity = 0f;
-                    if ((int)sunRotation.x == 180) foreach (Building_City city in Cities) city.CityLight.intensity = 1f;
-                    if ((int)sunRotation.x == 360) foreach (Building_City city in Cities) city.CityLight.intensity = 0f;
+                    _disasterTime = 0f;
+                    CameraHandler.MoveTo(ActiveDisaster.Center);
+                    GameState = GameState.MoveToDisaster;
                 }
+                break;
+
+            case GameState.MoveToDisaster:
+                if (CameraHandler.State == CameraState.Idle)
+                {
+                    _disasterTime += Time.deltaTime;
+                    if (_disasterTime > DISASTER_START_TIME_OFFSET)
+                    {
+                        ActiveDisaster.State = DisasterState.Occuring;
+                        ActiveDisaster.CastVisualEffect();
+                        ActiveDisaster.ApplyEffect();
+                        GameState = GameState.DisasterOccuring;
+                        _disasterTime = 0f;
+                    }
+                }
+                break;
+
+            case GameState.DisasterOccuring:
+                if(ActiveDisaster.State != DisasterState.Occuring)
+                {
+                    _disasterTime += Time.deltaTime;
+                    if(_disasterTime > DISASTER_END_TIME_OFFSET)
+                    {
+                        GameUI.Alert_StopFlash();
+                        GameState = GameState.DayCycle;
+                    }
+                }
+
                 break;
         }
     }
-    
-
     
 
     #region Game Commands
@@ -89,6 +154,20 @@ public class GameModel : MonoBehaviour
         Buildings.Add(newBuilding);
     }
 
+    public void DestroyBuilding(Building b)
+    {
+        b.OnDestroyed();
+        Destroy(b.gameObject);
+        Destroy(b.UILabel.gameObject);
+        Buildings.Remove(b);
+        b.Tile.Building = null;
+    }
+
+    public void DealDamage(Tile t, int dmg)
+    {
+        t.TakeDamage(dmg);
+    }
+
     public void IncreaseStability(float amount)
     {
         StarInstabilityLevel -= amount;
@@ -96,23 +175,56 @@ public class GameModel : MonoBehaviour
         GameUI.UpdateInstabilityPanel();
     }
 
+    public void DecreaseStability(float amount)
+    {
+        StarInstabilityLevel += amount;
+        GameUI.UpdateInstabilityPanel();
+    }
+
+    public void RevealMap(bool doReveal)
+    {
+        Map.IsRevealed = doReveal;
+        UpdateVisibility();
+    }
+
     #endregion
+
+    #region Visual Commands
+
+    public void UpdateVisibility()
+    {
+        foreach (Tile t in Map.Tiles) t.UpdateVisibility();
+    }
+
+    #endregion
+
+    #region Cycle
 
     public void EndDay()
     {
         if (GameState != GameState.Idle) return;
         GameState = GameState.DayCycle;
-        CurDayCycleTime = 0f;
-        foreach (Building b in Buildings) b.OnEndTurn();
+        _lastUpdateCycleTime = 0;
+        CurCycleRealTime = 0f;
+
+        CycleDisasters = DisasterHandler.GetDisastersForCycle();
+
+        // Distribute building cycle actions and disasters over the timeframe of the cycle
+        foreach (Building b in Buildings) b.CycleActionTime = Random.Range(1, CYCLE_TIME);
+        foreach (Disaster d in CycleDisasters) d.SetTime(Cycle, Random.Range(1, CYCLE_TIME));
+
     }
 
     private void StartNewDay()
     {
+        Cycle++;
+        CycleTime = 0;
+
         GameState = GameState.EventDialog;
         Sun.transform.rotation = Quaternion.Euler(50, -30, 0);
         Moon.intensity = 0f;
 
-        EventManager.CastRandomEvent();
+        EventHandler.CastRandomEvent();
     }
 
     public void EndEvent()
@@ -120,7 +232,24 @@ public class GameModel : MonoBehaviour
         GameState = GameState.Idle;
     }
 
-    #region Day Cycle
+    #endregion
+
+    #region Disaster
+
+    public void ShowDisaster(Disaster d)
+    {
+        if (d.Center.IsVisible())
+        {
+            ActiveDisaster = d;
+            GameState = GameState.AlertFlash;
+            GameUI.Alert_StartFlash();
+            _disasterTime = 0f;
+        }
+        else
+        {
+            d.ApplyEffect();
+        }
+    }
 
     #endregion
 
@@ -160,7 +289,7 @@ public class GameModel : MonoBehaviour
     {
         // Generate map
         MapData data = MapGenerator.GenerateMap(mapWidth, mapHeight, false);
-        Map.InitializeMap(data);
+        Map.InitializeMap(this, data);
         foreach (Tile t in Map.TilesList)
             t.IsInFogOfWar = true;
 
@@ -170,7 +299,8 @@ public class GameModel : MonoBehaviour
         // Init other elements
         CameraHandler = new CameraHandler(this);
         InputHandler = new InputHandler(this);
-        EventManager = new GameEventManager(this);
+        EventHandler = new GameEventHandler(this);
+        DisasterHandler = new DisasterHandler(this);
         MarkovChainWordGenerator.Init();
 
         // Place initial random cities
@@ -183,7 +313,6 @@ public class GameModel : MonoBehaviour
 
         // Init visiblie tiles around starting radar
         foreach (Building b in Buildings) b.OnBuild();
-        foreach (Tile t in Map.TilesList) t.UpdateTile();
 
         // Set camera position
         CameraHandler.FocusVisibleTiles();
@@ -240,6 +369,35 @@ public class GameModel : MonoBehaviour
         get
         {
             return Buildings.Where(x => x.GetType() == typeof(Building_City)).ToList();
+        }
+    }
+    public List<Building> PlayerBuildings
+    {
+        get
+        {
+            return Buildings.Where(x => x.GetType() != typeof(Building_City)).ToList();
+        }
+    }
+
+    public int Day
+    {
+        get
+        {
+            return CycleTime > CYCLE_TIME - CYCLE_OFFSET ? Cycle + 1 : Cycle;
+        }
+    }
+    public int Hour
+    {
+        get
+        {
+            return (CYCLE_OFFSET / 60 + CycleTime / 60) % 24;
+        }
+    }
+    public int Minute
+    {
+        get
+        {
+            return CycleTime % 60;
         }
     }
 

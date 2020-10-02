@@ -20,9 +20,10 @@ public class Building_Radar : Building
     public override void OnBuild()
     {
         foreach (Tile t in Tile.TilesInRange(Range)) t.IsInFogOfWar = false;
+        Model.UpdateVisibility();
     }
 
-    public override void OnEndTurn()
+    public override void CycleAction()
     {
         
     }

@@ -396,10 +396,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bd02c592cc168142ad8de645ac6b9f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HealthColors: []
-  City: {fileID: 0}
+  Building: {fileID: 0}
   HealthpointPrefab: {fileID: 6454167343697243949, guid: 646b3949c2ddb734c93431309200a939,
     type: 3}
+  HealthBarFrame: {fileID: 3517389723443662845}
+  City: {fileID: 0}
   CityName: {fileID: 3517389723724062340}
   HealthPanel: {fileID: 3517389723443662844}
   RelationImage: {fileID: 3517389723039304336}

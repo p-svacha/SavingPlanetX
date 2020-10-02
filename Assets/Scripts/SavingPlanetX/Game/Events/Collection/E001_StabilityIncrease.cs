@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Event_001_StabilityChange : GameEvent
+public class E001_StabilityIncrease : GameEvent
 {
-    private const float Probability = 1f;
+    private const float BaseProbability = 1f;
     private const string Title = "Stability Increase";
     private const string Text = "The star has unexpectedly stabilized by 2 points.";
 
-public Event_001_StabilityChange()
+    public E001_StabilityIncrease()
     {
         Id = 1;
     }
 
     public override float GetProbability(GameModel model)
     {
-        return Probability;
+        return BaseProbability + (model.StarInstabilityLevel / 10f);
     }
 
     public override void Cast(GameModel model)

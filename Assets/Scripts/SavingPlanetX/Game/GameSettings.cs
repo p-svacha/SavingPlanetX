@@ -7,6 +7,8 @@ public class GameSettings : ScriptableObject
 {
     public int NumCities = 15;
     public int MaxInstability = 20;
-    public int CityHealth = 3;
-    public int BuildingHealth = 3;
+
+    public float CityStartEmissions = 0.05f;
+
+    public int BuildingHealth = 5;
 }

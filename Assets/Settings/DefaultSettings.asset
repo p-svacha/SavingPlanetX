@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NumCities: 15
   MaxInstability: 20
+  CityStartEmissions: 0.05
+  BuildingHealth: 5

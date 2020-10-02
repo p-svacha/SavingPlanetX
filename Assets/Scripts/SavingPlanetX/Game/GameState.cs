@@ -9,4 +9,8 @@ public enum GameState
     BuildMode,
     DayCycle,
     EventDialog,
+    AlertFlash,
+    MoveToDisaster,
+    DisasterOccuring,
+    WaitAfterDisaster
 }

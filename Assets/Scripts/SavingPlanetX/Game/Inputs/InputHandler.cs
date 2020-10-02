@@ -29,9 +29,13 @@ public class InputHandler
         switch(Model.GameState)
         {
             case GameState.Idle:
-                if(Input.GetKeyDown(KeyCode.R)) // R - Build Radar
+                if(Input.GetKeyDown(KeyCode.Alpha1)) // 1 - Build Radar
                 {
                     Model.InitBuildMode(Model.BPC.Radar);
+                }
+                if(Input.GetKeyDown(KeyCode.R)) // R - Reveal / Unreveal map
+                {
+                    Model.RevealMap(!Model.Map.IsRevealed);
                 }
                 break;
         }

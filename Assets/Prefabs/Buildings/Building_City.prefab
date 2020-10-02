@@ -342,11 +342,15 @@ MonoBehaviour:
   Tile: {fileID: 0}
   DefaultColor: {r: 0, g: 0, b: 0, a: 0}
   SelectedColor: {r: 0, g: 0, b: 0, a: 0}
+  CycleActionTime: 0
+  MaxHealth: 0
   Health: 0
+  UILabel_Prefab: {fileID: 557206936859494943, guid: ce3ccc01f92c7cd48b31dec73710c1c4,
+    type: 3}
   UILabel: {fileID: 0}
   CityLight: {fileID: 1896829306942957083}
   CityName: 
-  InstabilityFactor: 1
+  Emissions: 0
   Relation: 0
 --- !u!1 &9170963619186380001
 GameObject:

@@ -5,13 +5,12 @@ using UnityEngine;
 
 public class Building_City : Building
 {
-    private const int MIN_DISTANCE_TO_OTHER_CITIES = 5;
+    private const int MIN_DISTANCE_TO_OTHER_CITIES = 6;
 
-    public UI_CityLabel UILabel;
     public Light CityLight;
 
     public string CityName;
-    public float InstabilityFactor = 0.05f;
+    public float Emissions; // Adds to the star instability each cycle
     public int Relation;
 
     public override void InitAttributes()
@@ -26,14 +25,14 @@ public class Building_City : Building
     }
     public override void OnBuild()
     {
-        InstabilityFactor = 0.05f;
-        Health = Model.Settings.CityHealth;
+        Emissions = Model.Settings.CityStartEmissions;
         Relation = 3;
         CityName = MarkovChainWordGenerator.GenerateWord("Province", 4);
     }
 
-    public override void OnEndTurn()
+    public override void CycleAction()
     {
-        Model.StarInstabilityLevel += InstabilityFactor;
+        if(GetComponentInChildren<Renderer>().isVisible) Model.GameUI.CreateInfoBlob(gameObject, Emissions.ToString(), Color.black, Color.white);
+        Model.DecreaseStability(Emissions);
     }
 }

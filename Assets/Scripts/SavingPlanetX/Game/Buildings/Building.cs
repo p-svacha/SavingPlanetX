@@ -14,21 +14,39 @@ public abstract class Building : MonoBehaviour
     public Color DefaultColor;
     public Color SelectedColor;
 
+    public int CycleActionTime; // The time that NightAction() triggers during the cycle
+
+    public int MaxHealth;
     public int Health;
+
+    public UI_BuildingLabel UILabel_Prefab;
+    public UI_BuildingLabel UILabel;
 
     public abstract void InitAttributes();
 
     public abstract bool CanBuildOn(Tile t);
-    public abstract void OnEndTurn();
-    public abstract void OnBuild();
+    public virtual void CycleAction() { }
+    public virtual void OnBuild() { }
+    public virtual void OnDestroyed() { }
     
 
     public void Initialize(GameModel model)
     {
         Model = model;
         DefaultColor = GetComponentInChildren<Renderer>().material.color;
-        SelectedColor = Model.ColorManager.BuildingSelectedColor;
+        SelectedColor = Model.ColorSettings.BuildingSelectedColor;
+        Health = Model.Settings.BuildingHealth;
+        MaxHealth = Model.Settings.BuildingHealth;
+        UILabel = Instantiate(UILabel_Prefab, Model.GameUI.LabelsPanel);
+        UILabel.Init(this);
         InitAttributes();
+    }
+
+    public void DealDamage(int dmg)
+    {
+        Health -= dmg;
+        if (Health <= 0) Model.DestroyBuilding(this);
+        else UILabel.UpdateHealthbar();
     }
 
     public void Select()
@@ -44,17 +62,5 @@ public abstract class Building : MonoBehaviour
     public void SetColor(Color c)
     {
         for (int i = 0; i < transform.childCount; i++) if(transform.GetChild(i).GetComponent<Renderer>() != null) transform.GetChild(i).GetComponent<Renderer>().material.color = c;
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
