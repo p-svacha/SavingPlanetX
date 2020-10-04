@@ -10,15 +10,17 @@ public class Building_City : Building
     public Light CityLight;
 
     public string CityName;
-    public int Relation;
+    public float Relationship; // [0-4]
 
-    public override void InitAttributes()
+    public override void InitAttributes(GameModel model)
     {
         BuildingName = "City";
         BuildingDescription = "A permanent settlement of a big group of planet inhabitants.";
-        MaxHealth = GameSettings.City_MaxHealth;
-        EmissionsPerCycle = GameSettings.City_Emissions;
-        RepairCost = GameSettings.City_RepairCost;
+        BuildingIcon = model.Icons.Building_City;
+
+        MaxHealth = model.GameSettings.City_MaxHealth;
+        EmissionsPerCycle = model.GameSettings.City_Emissions;
+        RepairCost = model.GameSettings.City_RepairCost;
     }
 
     public override bool CanBuildOn(Tile t)
@@ -27,7 +29,8 @@ public class Building_City : Building
     }
     public override void OnBuild()
     {
-        Relation = 3;
         CityName = MarkovChainWordGenerator.GenerateWord("Province", 4);
+        Relationship = 2;
+        UILabel.UpdatePanel();
     }
 }

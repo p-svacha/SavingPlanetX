@@ -4,14 +4,16 @@ using UnityEngine;
 
 public class Building_Radar : Building
 {
-    public override void InitAttributes()
+    public override void InitAttributes(GameModel model)
     {
         BuildingName = "Radar";
         BuildingDescription = "A building that provides vision of the surrounding area.";
-        MaxHealth = GameSettings.Radar_MaxHealth;
-        BuildCost = GameSettings.Radar_BuildCost;
-        RepairCost = GameSettings.Radar_RepairCost;
-        VisiblityRange = GameSettings.Radar_VisiblityRange;
+        BuildingIcon = model.Icons.Building_Radar;
+
+        MaxHealth = model.GameSettings.Radar_MaxHealth;
+        BuildCost = model.GameSettings.Radar_BuildCost;
+        RepairCost = model.GameSettings.Radar_RepairCost;
+        VisiblityRange = model.GameSettings.Radar_VisiblityRange;
     }
 
     public override bool CanBuildOn(Tile t)

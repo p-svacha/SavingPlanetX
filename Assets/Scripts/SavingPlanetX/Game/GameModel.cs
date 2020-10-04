@@ -11,12 +11,14 @@ public class GameModel : MonoBehaviour
     public CameraHandler CameraHandler;
     public InputHandler InputHandler;
     public GameUI GameUI;
+
     public BuildingPrefabCollection BPC;
     public MaterialCollection MaterialCollection;
+    public IconCollection Icons;
 
     public GameSettings GameSettings;
     public ColorSettings ColorSettings;
-    
+
 
     public GameState GameState = GameState.Initializing;
 
@@ -145,7 +147,7 @@ public class GameModel : MonoBehaviour
     #region Game Commands
     
 
-    private void PlaceBuilding(Tile t, Building b)
+    private Building PlaceBuilding(Tile t, Building b, bool initializing = false)
     {
         Building newBuilding = GameObject.Instantiate(b);
         newBuilding.Tile = t;
@@ -157,7 +159,15 @@ public class GameModel : MonoBehaviour
         newBuilding.transform.position = t.transform.position;
         Buildings.Add(newBuilding);
 
+        if (!initializing)
+        {
+            RemoveGold(newBuilding.BuildCost, newBuilding);
+            GameUI.ResourceInfo.UpdatePanel();
+        }
+
         UpdateVisibility();
+
+        return newBuilding;
     }
 
     public void DestroyBuilding(Building b)
@@ -167,6 +177,9 @@ public class GameModel : MonoBehaviour
         Destroy(b.UILabel.gameObject);
         Buildings.Remove(b);
         b.Tile.Building = null;
+
+        UpdateVisibility();
+        GameUI.ResourceInfo.UpdatePanel();
     }
 
     public void RepairBuilding(Building b)
@@ -183,28 +196,25 @@ public class GameModel : MonoBehaviour
 
     public void IncreaseStability(float amount, Building source = null)
     {
-        StarInstabilityLevel -= amount;
-        if (StarInstabilityLevel < 0) StarInstabilityLevel = 0;
-        GameUI.UpdateInstabilityPanel();
-        if (amount != 0 && source != null && source.Tile.IsVisible) GameUI.CreateInfoBlob(source.gameObject, amount.ToString(), Color.green, Color.grey);
+        DoChangeInstability(-amount);
+        if (amount != 0 && source != null && source.Tile.IsVisible) GameUI.CreateInfoBlob(source.gameObject, amount.ToString(), ColorSettings.UI_Text_Positive, Color.grey);
     }
 
     public void DecreaseStability(float amount, Building source = null)
     {
-        StarInstabilityLevel += amount;
-        GameUI.UpdateInstabilityPanel();
-        if (amount != 0 && source != null && source.Tile.IsVisible) GameUI.CreateInfoBlob(source.gameObject, amount.ToString(), Color.red, Color.grey);
+        DoChangeInstability(amount);
+        if (amount != 0 && source != null && source.Tile.IsVisible) GameUI.CreateInfoBlob(source.gameObject, amount.ToString(), ColorSettings.UI_Text_Negative, Color.grey);
     }
 
     public void AddGold(int amount, Building source = null)
     {
         DoChangeGoldAmount(amount);
-        if (amount != 0 && source != null && source.Tile.IsVisible) GameUI.CreateInfoBlob(source.gameObject, amount.ToString(), Color.green, Color.yellow);
+        if (amount != 0 && source != null && source.Tile.IsVisible) GameUI.CreateInfoBlob(source.gameObject, amount.ToString(), ColorSettings.UI_Text_Positive, Color.yellow);
     }
     public void RemoveGold(int amount, Building source = null)
     {
         DoChangeGoldAmount(-amount);
-        if (amount != 0 && source != null && source.Tile.IsVisible) GameUI.CreateInfoBlob(source.gameObject, amount.ToString(), Color.red, Color.yellow);
+        if (amount != 0 && source != null && source.Tile.IsVisible) GameUI.CreateInfoBlob(source.gameObject, amount.ToString(), ColorSettings.UI_Text_Negative, Color.yellow);
     }
 
     public void RevealMap(bool doReveal)
@@ -223,6 +233,13 @@ public class GameModel : MonoBehaviour
         GameUI.BuildPanel.UpdatePanel();
         if (GameUI.BuildingInfo.gameObject.activeSelf) GameUI.BuildingInfo.UpdatePanel();
         GameUI.ResourceInfo.UpdatePanel();
+    }
+
+    private void DoChangeInstability(float amount)
+    {
+        StarInstabilityLevel += amount;
+        StarInstabilityLevel = Mathf.Clamp(StarInstabilityLevel, 0, GameSettings.MaxInstability);
+        GameUI.UpdateInstabilityPanel();
     }
 
     private void UpdateVisibility()
@@ -342,13 +359,18 @@ public class GameModel : MonoBehaviour
         DisasterHandler = new DisasterHandler(this);
         MarkovChainWordGenerator.Init();
 
+        // Initialize building attributes
+        BPC.City.InitAttributes(this);
+        BPC.HQ.InitAttributes(this);
+        BPC.Radar.InitAttributes(this);
+
         // Place initial random cities
         PlaceRandomCities();
 
         // Choose random starting (next to a city) tile to place Headquarters
         List<Tile> startRadarCandidates = Map.TilesList.Where(x => BPC.HQ.CanBuildOn(x) && x.BuildingsInRange(GameSettings.Headquarter_VisibilityRange, typeof(Building_City)).Count == 1).ToList();
         Tile startingTile = startRadarCandidates[Random.Range(0, startRadarCandidates.Count)];
-        PlaceBuilding(startingTile, BPC.HQ);
+        PlaceBuilding(startingTile, BPC.HQ, initializing: true);
 
         // Init visiblie tiles around starting radar
         foreach (Building b in Buildings) b.OnBuild();
@@ -369,7 +391,7 @@ public class GameModel : MonoBehaviour
         {
             List<Tile> candidates = Map.TilesList.Where(x => BPC.City.CanBuildOn(x)).ToList();
             Tile cityTile = candidates[Random.Range(0, candidates.Count)];
-            PlaceBuilding(cityTile, BPC.City);
+            Building_City newCity = (Building_City)PlaceBuilding(cityTile, BPC.City, initializing: true);
         }
     }
 

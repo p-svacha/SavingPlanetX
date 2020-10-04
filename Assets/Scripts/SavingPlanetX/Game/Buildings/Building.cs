@@ -30,7 +30,7 @@ public abstract class Building : MonoBehaviour
     public int RepairCost { get; protected set; }
     public int BuildCost { get; protected set; }
 
-    public abstract void InitAttributes();
+    public abstract void InitAttributes(GameModel model);
 
     public abstract bool CanBuildOn(Tile t);
 
@@ -50,7 +50,7 @@ public abstract class Building : MonoBehaviour
         GameSettings = Model.GameSettings;
         DefaultColor = GetComponentInChildren<Renderer>().material.color;
         SelectedColor = Model.ColorSettings.BuildingSelectedColor;
-        InitAttributes();
+        InitAttributes(Model);
         Health = MaxHealth;
         UILabel = Instantiate(UILabel_Prefab, Model.GameUI.LabelsPanel);
         UILabel.Init(this);

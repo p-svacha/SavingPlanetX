@@ -335,22 +335,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b20b786ed6f44224e912995d524e01a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BuildingName: 
-  BuildingDescription: 
-  BuildingIcon: {fileID: 21300000, guid: bc1254e2cdb30ae4ebfd956cb497a675, type: 3}
+  BuildingName: City
+  BuildingDescription: A permanent settlement of a big group of planet inhabitants.
+  BuildingIcon: {fileID: 0}
   Model: {fileID: 0}
+  GameSettings: {fileID: 0}
   Tile: {fileID: 0}
   DefaultColor: {r: 0, g: 0, b: 0, a: 0}
   SelectedColor: {r: 0, g: 0, b: 0, a: 0}
   CycleActionTime: 0
-  MaxHealth: 0
+  MaxHealth: 5
   Health: 0
+  VisiblityRange: 0
+  MoneyPerCycle: 0
+  EmissionsPerCycle: 0.05
   UILabel_Prefab: {fileID: 557206936859494943, guid: ce3ccc01f92c7cd48b31dec73710c1c4,
     type: 3}
   UILabel: {fileID: 0}
   CityLight: {fileID: 1896829306942957083}
   CityName: 
-  Emissions: 0
   Relation: 0
 --- !u!1 &9170963619186380001
 GameObject:

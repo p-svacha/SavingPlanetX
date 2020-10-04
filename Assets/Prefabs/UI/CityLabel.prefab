@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3517389722625719678}
   - component: {fileID: 3517389722625719677}
   m_Layer: 5
-  m_Name: StabilityImage
+  m_Name: EmissionImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -367,7 +367,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.6784314, g: 0.7764706, b: 0.59607846, a: 1}
+  m_Color: {r: 0.7989498, g: 0.8848828, b: 0.8867924, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -400,8 +400,6 @@ MonoBehaviour:
   HealthpointPrefab: {fileID: 6454167343697243949, guid: 646b3949c2ddb734c93431309200a939,
     type: 3}
   HealthBarFrame: {fileID: 3517389723443662845}
-  City: {fileID: 0}
   CityName: {fileID: 3517389723724062340}
-  HealthPanel: {fileID: 3517389723443662844}
   RelationImage: {fileID: 3517389723039304336}
-  StabilityImage: {fileID: 3517389722625719677}
+  EmissionImage: {fileID: 3517389722625719677}

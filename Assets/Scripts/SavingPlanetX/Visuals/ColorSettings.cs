@@ -10,6 +10,9 @@ public class ColorSettings : ScriptableObject
     public Color UI_Lighter;
     public Color UI_Darker;
 
+    public Color UI_Text_Positive;
+    public Color UI_Text_Negative;
+
     public Color UI_Interactive_Enabled_Back;
     public Color UI_Interactive_Enabled_Front;
     public Color UI_Interactive_Disabled_Back;

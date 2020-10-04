@@ -49,6 +49,7 @@ public class CameraHandler
         CurrentHeight = MinHeight;
         State = CameraState.Idle;
         Camera = Camera.main;
+        Angle = Random.Range(0, 360);
     }
 
     public void Update()

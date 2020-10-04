@@ -31,7 +31,6 @@ public class GameUI : MonoBehaviour
     private void Update()
     {
         UpdateTileInfo();
-        UpdateInstabilityPanel();
         UpdateAlertPanel();
     }
 
@@ -55,6 +54,8 @@ public class GameUI : MonoBehaviour
         BuildPanel.Init(Model);
         ResourceInfo.Init(Model);
         BuildingInfo.gameObject.SetActive(false);
+
+        UpdateInstabilityPanel();
     }
 
     private void InitInstabilityPanel()

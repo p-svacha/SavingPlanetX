@@ -13,15 +13,17 @@ MonoBehaviour:
   m_Name: DefaultColorSettings
   m_EditorClassIdentifier: 
   AlertColors:
-  - {r: 0.10506846, g: 0.3773585, b: 0, a: 1}
-  - {r: 0.66193116, g: 0.7924528, b: 0, a: 1}
-  - {r: 1, g: 0.95421755, b: 0.5330188, a: 1}
-  - {r: 1, g: 0.727488, b: 0.4009434, a: 1}
-  - {r: 1, g: 0.16509432, b: 0.16509432, a: 1}
+  - {r: 0.07450981, g: 0.5882353, b: 0.3254902, a: 1}
+  - {r: 0.5686275, g: 0.76470596, b: 0.30588236, a: 1}
+  - {r: 0.9607844, g: 0.9058824, b: 0.18431373, a: 1}
+  - {r: 0.94117653, g: 0.5882353, b: 0.18431373, a: 1}
+  - {r: 0.90196085, g: 0.1764706, b: 0.20000002, a: 1}
   UI_Lighter: {r: 0.80392164, g: 0.87843144, b: 0.7607844, a: 1}
   UI_Darker: {r: 0.6784314, g: 0.7764706, b: 0.59607846, a: 1}
+  UI_Text_Positive: {r: 0.11146329, g: 0.4528302, b: 0, a: 1}
+  UI_Text_Negative: {r: 0.7372549, g: 0, b: 0, a: 1}
   UI_Interactive_Enabled_Back: {r: 0.3137255, g: 0.1882353, b: 0.2784314, a: 1}
   UI_Interactive_Enabled_Front: {r: 1, g: 1, b: 1, a: 1}
   UI_Interactive_Disabled_Back: {r: 0.6415094, g: 0.6415094, b: 0.6415094, a: 1}
   UI_Interactive_Disabled_Front: {r: 0.3018868, g: 0.3018868, b: 0.3018868, a: 1}
-  BuildingSelectedColor: {r: 0.745283, g: 0.56974167, b: 0.20741367, a: 1}
+  BuildingSelectedColor: {r: 1, g: 0.009791803, b: 0, a: 1}

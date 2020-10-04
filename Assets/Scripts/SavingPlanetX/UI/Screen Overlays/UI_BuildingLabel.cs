@@ -24,7 +24,7 @@ public class UI_BuildingLabel : MonoBehaviour
             healthPanel.anchorMin = new Vector2(i * stepSize + (i + 1) * HEALTH_BAR_GAP_SIZE, 0.1f);
             healthPanel.anchorMax = new Vector2((i + 1) * stepSize + (i - 1) * HEALTH_BAR_GAP_SIZE, 0.9f);
         }
-        UpdateHealthbar();
+        UpdatePanel();
     }
 
     public void UpdateHealthbar()
@@ -46,5 +46,11 @@ public class UI_BuildingLabel : MonoBehaviour
     public virtual void Update()
     {
         UpdatePosition();
+    }
+
+    public virtual void UpdatePanel()
+    {
+        UpdatePosition();
+        UpdateHealthbar();
     }
 }
