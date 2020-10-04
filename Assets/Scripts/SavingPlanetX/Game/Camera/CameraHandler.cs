@@ -140,7 +140,7 @@ public class CameraHandler
 
     public void UpdateBounds()
     {
-        List<Tile> visibleTiles = Model.Map.GetVisibleTiles();
+        List<Tile> visibleTiles = Model.Map.VisibleTiles;
         float minX = visibleTiles.Min(x => x.transform.position.x);
         float maxX = visibleTiles.Max(x => x.transform.position.x);
         float minZ = visibleTiles.Min(x => x.transform.position.z);

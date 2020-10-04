@@ -9,6 +9,7 @@ public abstract class Building : MonoBehaviour
     public Sprite BuildingIcon;
 
     public GameModel Model;
+    public GameSettings GameSettings;
     public Tile Tile;
 
     public Color DefaultColor;
@@ -18,6 +19,10 @@ public abstract class Building : MonoBehaviour
 
     public int MaxHealth;
     public int Health;
+    public int VisiblityRange;
+
+    public int MoneyPerCycle;
+    public float EmissionsPerCycle;
 
     public UI_BuildingLabel UILabel_Prefab;
     public UI_BuildingLabel UILabel;
@@ -28,7 +33,13 @@ public abstract class Building : MonoBehaviour
     public abstract void InitAttributes();
 
     public abstract bool CanBuildOn(Tile t);
-    public virtual void CycleAction() { }
+
+    public virtual void CycleAction()
+    {
+        Model.DecreaseStability(EmissionsPerCycle, this);
+        Model.AddGold(MoneyPerCycle, this);
+    }
+
     public virtual void OnBuild() { }
     public virtual void OnDestroyed() { }
     
@@ -36,13 +47,13 @@ public abstract class Building : MonoBehaviour
     public void Initialize(GameModel model)
     {
         Model = model;
+        GameSettings = Model.GameSettings;
         DefaultColor = GetComponentInChildren<Renderer>().material.color;
         SelectedColor = Model.ColorSettings.BuildingSelectedColor;
-        Health = Model.Settings.BuildingHealth;
-        MaxHealth = Model.Settings.BuildingHealth;
+        InitAttributes();
+        Health = MaxHealth;
         UILabel = Instantiate(UILabel_Prefab, Model.GameUI.LabelsPanel);
         UILabel.Init(this);
-        InitAttributes();
     }
 
     public void DealDamage(int dmg)
@@ -50,6 +61,13 @@ public abstract class Building : MonoBehaviour
         Health -= dmg;
         if (Health <= 0) Model.DestroyBuilding(this);
         else UILabel.UpdateHealthbar();
+    }
+
+    public void Repair()
+    {
+        if (Health == MaxHealth) return;
+        else Health += 1;
+        UILabel.UpdateHealthbar();
     }
 
     public void Select()
@@ -69,7 +87,7 @@ public abstract class Building : MonoBehaviour
 
     public bool CanRepair()
     {
-        return Model.Money >= RepairCost;
+        return Health < MaxHealth && Model.Money >= RepairCost;
     }
 
     public bool CanBuild(GameModel model)

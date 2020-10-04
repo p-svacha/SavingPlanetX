@@ -13,13 +13,15 @@ public class UI_BuildingInfo : MonoBehaviour
     
     public Text Description;
 
-    public void SetSelection(Building b)
+    public void SetSelection(GameModel model, Building b)
     {
         DisplayedBuilding = b;
         Name.text = b.BuildingName;
         Description.text = b.BuildingDescription;
         Image.sprite = b.BuildingIcon;
         RepairButton.SetEnabled(b.CanRepair());
+        RepairButton.Button.onClick.RemoveAllListeners();
+        RepairButton.Button.onClick.AddListener(() => model.RepairBuilding(DisplayedBuilding));
     }
 
     public void UpdatePanel()

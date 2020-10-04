@@ -13,12 +13,13 @@ public class UI_Button : MonoBehaviour
 
     private void Start()
     {
-        Colors = GameObject.Find("GameModel").GetComponent<GameModel>().ColorSettings;
+        
     }
 
     public void SetEnabled(bool b)
     {
-        if(b)
+        Colors = GameObject.Find("GameModel").GetComponent<GameModel>().ColorSettings;
+        if (b)
         {
             Background.color = Colors.UI_Interactive_Enabled_Back;
             Image.color = Colors.UI_Interactive_Enabled_Front;

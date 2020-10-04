@@ -15,7 +15,7 @@ public class E002_StabilityDecrease : GameEvent
 
     public override float GetProbability(GameModel model)
     {
-        return BaseProbability + ((model.Settings.MaxInstability - model.StarInstabilityLevel) / 10f);
+        return BaseProbability + ((model.GameSettings.MaxInstability - model.StarInstabilityLevel) / 10f);
     }
 
     public override void Cast(GameModel model)

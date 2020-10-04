@@ -32,7 +32,9 @@ public class UI_BuildingLabel : MonoBehaviour
         for (int i = 0; i < Building.MaxHealth; i++)
         {
             HealthBarFrame.transform.GetChild(i).gameObject.SetActive(i < Building.Health);
-            HealthBarFrame.transform.GetChild(i).GetComponent<Image>().color = Building.Model.ColorSettings.AlertColors[Building.MaxHealth - Building.Health];
+            int arrayLength = Building.Model.ColorSettings.AlertColors.Length;
+            int colorIndex = (int)(arrayLength - ((1f * Building.Health / Building.MaxHealth) * arrayLength));
+            HealthBarFrame.transform.GetChild(i).GetComponent<Image>().color = Building.Model.ColorSettings.AlertColors[colorIndex];
         }
     }
 

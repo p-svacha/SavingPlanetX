@@ -10,13 +10,15 @@ public class Building_City : Building
     public Light CityLight;
 
     public string CityName;
-    public float Emissions; // Adds to the star instability each cycle
     public int Relation;
 
     public override void InitAttributes()
     {
         BuildingName = "City";
         BuildingDescription = "A permanent settlement of a big group of planet inhabitants.";
+        MaxHealth = GameSettings.City_MaxHealth;
+        EmissionsPerCycle = GameSettings.City_Emissions;
+        RepairCost = GameSettings.City_RepairCost;
     }
 
     public override bool CanBuildOn(Tile t)
@@ -25,14 +27,7 @@ public class Building_City : Building
     }
     public override void OnBuild()
     {
-        Emissions = Model.Settings.CityStartEmissions;
         Relation = 3;
         CityName = MarkovChainWordGenerator.GenerateWord("Province", 4);
-    }
-
-    public override void CycleAction()
-    {
-        if(GetComponentInChildren<Renderer>().isVisible) Model.GameUI.CreateInfoBlob(gameObject, Emissions.ToString(), Color.black, Color.white);
-        Model.DecreaseStability(Emissions);
     }
 }

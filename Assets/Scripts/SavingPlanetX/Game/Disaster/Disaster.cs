@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Disaster : MonoBehaviour
+public abstract class Disaster
 {
     private int DisasterId = 1;
 

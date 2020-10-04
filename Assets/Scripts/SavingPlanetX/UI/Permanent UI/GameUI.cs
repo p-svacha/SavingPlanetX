@@ -42,7 +42,7 @@ public class GameUI : MonoBehaviour
 
     public void UpdateInstabilityPanel()
     {
-        for (int i = 0; i < Model.Settings.MaxInstability; i++)
+        for (int i = 0; i < Model.GameSettings.MaxInstability; i++)
             InstabilityPanel.transform.GetChild(i).gameObject.SetActive(i < Model.StarInstabilityLevel);
     }
 
@@ -60,15 +60,15 @@ public class GameUI : MonoBehaviour
     private void InitInstabilityPanel()
     {
         float gap = 0.1f;
-        float stepSize = (1f / (Model.Settings.MaxInstability));
+        float stepSize = (1f / (Model.GameSettings.MaxInstability));
         float gapSize = stepSize * gap;
-        for (int i = 0; i < Model.Settings.MaxInstability; i++)
+        for (int i = 0; i < Model.GameSettings.MaxInstability; i++)
         {
             RectTransform levelPanel = Instantiate(PanelPrefab, InstabilityPanel.transform);
             levelPanel.anchorMin = new Vector2(gapSize + i * stepSize, 0.05f);
             levelPanel.anchorMax = new Vector2(((i + 1) * stepSize) - gapSize, 0.95f);
 
-            levelPanel.GetComponent<Image>().color = Model.ColorSettings.AlertColors[Mathf.Min(Model.ColorSettings.AlertColors.Length - 1, i / (Model.Settings.MaxInstability / (Model.ColorSettings.AlertColors.Length)))];
+            levelPanel.GetComponent<Image>().color = Model.ColorSettings.AlertColors[Mathf.Min(Model.ColorSettings.AlertColors.Length - 1, i / (Model.GameSettings.MaxInstability / (Model.ColorSettings.AlertColors.Length)))];
         }
     }
 

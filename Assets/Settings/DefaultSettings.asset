@@ -14,5 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NumCities: 15
   MaxInstability: 20
-  CityStartEmissions: 0.05
-  BuildingHealth: 5
+  Headquater_MaxHealth: 10
+  Headquarter_VisibilityRange: 4
+  Headquarter_Gold: 10
+  City_MaxHealth: 5
+  City_Emissions: 0.05
+  Radar_MaxHealth: 3
+  Radar_VisiblityRange: 3

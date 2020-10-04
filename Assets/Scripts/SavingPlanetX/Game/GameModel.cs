@@ -14,7 +14,7 @@ public class GameModel : MonoBehaviour
     public BuildingPrefabCollection BPC;
     public MaterialCollection MaterialCollection;
 
-    public GameSettings Settings;
+    public GameSettings GameSettings;
     public ColorSettings ColorSettings;
     
 
@@ -156,6 +156,8 @@ public class GameModel : MonoBehaviour
         t.Building = newBuilding;
         newBuilding.transform.position = t.transform.position;
         Buildings.Add(newBuilding);
+
+        UpdateVisibility();
     }
 
     public void DestroyBuilding(Building b)
@@ -167,30 +169,42 @@ public class GameModel : MonoBehaviour
         b.Tile.Building = null;
     }
 
+    public void RepairBuilding(Building b)
+    {
+        b.Repair();
+        RemoveGold(b.RepairCost, b);
+    }
+
     public void DealDamage(Tile t, int dmg)
     {
+        if (dmg == 0) return;
         t.TakeDamage(dmg);
     }
 
-    public void IncreaseStability(float amount)
+    public void IncreaseStability(float amount, Building source = null)
     {
         StarInstabilityLevel -= amount;
         if (StarInstabilityLevel < 0) StarInstabilityLevel = 0;
         GameUI.UpdateInstabilityPanel();
+        if (amount != 0 && source != null && source.Tile.IsVisible) GameUI.CreateInfoBlob(source.gameObject, amount.ToString(), Color.green, Color.grey);
     }
 
-    public void DecreaseStability(float amount)
+    public void DecreaseStability(float amount, Building source = null)
     {
         StarInstabilityLevel += amount;
         GameUI.UpdateInstabilityPanel();
+        if (amount != 0 && source != null && source.Tile.IsVisible) GameUI.CreateInfoBlob(source.gameObject, amount.ToString(), Color.red, Color.grey);
     }
 
-    public void AddGold(int amount)
+    public void AddGold(int amount, Building source = null)
     {
-        Money += amount;
-        GameUI.BuildPanel.UpdatePanel();
-        if (GameUI.BuildingInfo.gameObject.activeSelf) GameUI.BuildingInfo.UpdatePanel();
-        GameUI.ResourceInfo.UpdatePanel();
+        DoChangeGoldAmount(amount);
+        if (amount != 0 && source != null && source.Tile.IsVisible) GameUI.CreateInfoBlob(source.gameObject, amount.ToString(), Color.green, Color.yellow);
+    }
+    public void RemoveGold(int amount, Building source = null)
+    {
+        DoChangeGoldAmount(-amount);
+        if (amount != 0 && source != null && source.Tile.IsVisible) GameUI.CreateInfoBlob(source.gameObject, amount.ToString(), Color.red, Color.yellow);
     }
 
     public void RevealMap(bool doReveal)
@@ -201,11 +215,26 @@ public class GameModel : MonoBehaviour
 
     #endregion
 
-    #region Visual Commands
+    #region Private Commands
 
-    public void UpdateVisibility()
+    private void DoChangeGoldAmount(int amount)
     {
-        foreach (Tile t in Map.Tiles) t.UpdateVisibility();
+        Money += amount;
+        GameUI.BuildPanel.UpdatePanel();
+        if (GameUI.BuildingInfo.gameObject.activeSelf) GameUI.BuildingInfo.UpdatePanel();
+        GameUI.ResourceInfo.UpdatePanel();
+    }
+
+    private void UpdateVisibility()
+    {
+        foreach (Tile t in Map.Tiles) t.SetVisible(Map.IsRevealed);
+        if (!Map.IsRevealed)
+        {
+            foreach (Building b in Buildings.Where(x => x.VisiblityRange > 0))
+            {
+                foreach (Tile t in b.Tile.TilesInRange(b.VisiblityRange)) t.SetVisible(true);
+            }
+        }
     }
 
     #endregion
@@ -250,7 +279,7 @@ public class GameModel : MonoBehaviour
 
     public void ShowDisaster(Disaster d)
     {
-        if (d.Center.IsVisible())
+        if (d.Center.IsVisible)
         {
             ActiveDisaster = d;
             GameState = GameState.AlertFlash;
@@ -302,8 +331,6 @@ public class GameModel : MonoBehaviour
         // Generate map
         MapData data = MapGenerator.GenerateMap(mapWidth, mapHeight, false);
         Map.InitializeMap(this, data);
-        foreach (Tile t in Map.TilesList)
-            t.IsInFogOfWar = true;
 
         // Init values
         StarInstabilityLevel = 1;
@@ -318,10 +345,10 @@ public class GameModel : MonoBehaviour
         // Place initial random cities
         PlaceRandomCities();
 
-        // Choose random starting (next to a city) tile to place Radar
-        List<Tile> startRadarCandidates = Map.TilesList.Where(x => BPC.Radar.CanBuildOn(x) && x.IsInRangeOfBuilding(BPC.Radar.Range, typeof(Building_City))).ToList();
+        // Choose random starting (next to a city) tile to place Headquarters
+        List<Tile> startRadarCandidates = Map.TilesList.Where(x => BPC.HQ.CanBuildOn(x) && x.BuildingsInRange(GameSettings.Headquarter_VisibilityRange, typeof(Building_City)).Count == 1).ToList();
         Tile startingTile = startRadarCandidates[Random.Range(0, startRadarCandidates.Count)];
-        PlaceBuilding(startingTile, BPC.Radar);
+        PlaceBuilding(startingTile, BPC.HQ);
 
         // Init visiblie tiles around starting radar
         foreach (Building b in Buildings) b.OnBuild();
@@ -337,7 +364,7 @@ public class GameModel : MonoBehaviour
     private void PlaceRandomCities()
     {
         //int tilesPerCity = UnityEngine.Random.Range(MIN_TILES_PER_CITY, MAX_TILES_PER_CITY);
-        int numCities = Settings.NumCities; // Map.NumTiles / tilesPerCity;
+        int numCities = GameSettings.NumCities; // Map.NumTiles / tilesPerCity;
         for (int i = 0; i < numCities; i++)
         {
             List<Tile> candidates = Map.TilesList.Where(x => BPC.City.CanBuildOn(x)).ToList();
@@ -367,7 +394,7 @@ public class GameModel : MonoBehaviour
         if (SelectedBuilding != null)
         {
             GameUI.BuildingInfo.gameObject.SetActive(true);
-            GameUI.BuildingInfo.SetSelection(SelectedBuilding);
+            GameUI.BuildingInfo.SetSelection(this, SelectedBuilding);
             SelectedBuilding.Select();
         }
     }
@@ -410,6 +437,21 @@ public class GameModel : MonoBehaviour
         get
         {
             return CycleTime % 60;
+        }
+    }
+
+    public int MoneyPerCycle
+    {
+        get
+        {
+            return Buildings.Sum(x => x.MoneyPerCycle);
+        }
+    }
+    public float EmissionsPerCycle
+    {
+        get
+        {
+            return Buildings.Sum(x => x.EmissionsPerCycle);
         }
     }
 

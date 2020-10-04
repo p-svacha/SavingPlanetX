@@ -44,7 +44,7 @@ public class DisasterHandler
 
     private int GetDisasterIntensity()
     {
-        float baseIntensity = (Model.StarInstabilityLevel / Model.Settings.MaxInstability * 4) + 1;
+        float baseIntensity = (Model.StarInstabilityLevel / Model.GameSettings.MaxInstability * 4) + 1;
         return Mathf.Clamp(Mathf.RoundToInt(NextNormalRandom(baseIntensity, INTENSITY_STANDARD_DEV)), 1, 5);
     }
 

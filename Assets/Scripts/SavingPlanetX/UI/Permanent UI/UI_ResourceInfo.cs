@@ -10,6 +10,8 @@ public class UI_ResourceInfo : MonoBehaviour
     public Image MoneyIcon;
     public Text MoneyText;
 
+    public Text EmissionsText;
+
     public void Init(GameModel model)
     {
         Model = model;
@@ -18,7 +20,8 @@ public class UI_ResourceInfo : MonoBehaviour
 
     public void UpdatePanel()
     {
-        MoneyText.text = Model.Money + "";
+        MoneyText.text = Model.Money + " (+" + Model.MoneyPerCycle + ")";
+        EmissionsText.text = "+ " + Model.EmissionsPerCycle.ToString("0.00");
     }
 
 }

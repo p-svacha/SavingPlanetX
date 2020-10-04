@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class InputHandler
 {
@@ -50,13 +51,15 @@ public class InputHandler
 
     private void HandleLeftClick()
     {
+        bool uiClick = EventSystem.current.IsPointerOverGameObject();
+
         switch (Model.GameState)
         {
             case GameState.Idle: // Select building
                 Building selectedBuilding = null;
                 if (Physics.Raycast(ray, out hit, 100, BuildingLayerMask))
                     selectedBuilding = hit.transform.gameObject.GetComponentInParent<Building>();
-                Model.SetSelectedBuilding(selectedBuilding);
+                if(!uiClick) Model.SetSelectedBuilding(selectedBuilding);
                 break;
 
             case GameState.BuildMode: // Place building

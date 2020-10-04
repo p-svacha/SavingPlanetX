@@ -52,9 +52,12 @@ public class Map : MonoBehaviour
 
     #region Getters
 
-    public List<Tile> GetVisibleTiles()
+    public List<Tile> VisibleTiles
     {
-        return TilesList.Where(x => !x.IsInFogOfWar).ToList();
+        get
+        {
+            return TilesList.Where(x => x.IsVisible).ToList();
+        }
     }
 
     public List<Tile> LandTiles

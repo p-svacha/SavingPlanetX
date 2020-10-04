@@ -26,7 +26,7 @@ public class Tile : MonoBehaviour
 
     public Tile[] NeighbourTiles = new Tile[6];
 
-    public bool IsInFogOfWar;
+    public bool IsVisible;
 
     public Building Building;
 
@@ -103,15 +103,14 @@ public class Tile : MonoBehaviour
             for (int i = 0; i < transform.childCount; i++) transform.GetChild(i).GetComponent<Renderer>().material.SetTexture("_MainTex", tex);
     }
 
-    public void UpdateVisibility()
+    public void SetVisible(bool v)
     {
-        // Visibility
-        bool doDrawTile = IsVisible();
-        gameObject.SetActive(doDrawTile);
+        IsVisible = v;
+        gameObject.SetActive(v);
         if (Building != null)
         {
-            Building.gameObject.SetActive(doDrawTile);
-            Building.UILabel.gameObject.SetActive(doDrawTile);
+            Building.gameObject.SetActive(v);
+            Building.UILabel.gameObject.SetActive(v);
         }
         FogOfWarObject.SetActive(false);
     }
@@ -173,11 +172,11 @@ public class Tile : MonoBehaviour
     {
         return TilesInRange(range).Any(x => x.Building != null && x.Building.GetType() == type);
     }
-
-    public bool IsVisible()
+    public List<Building> BuildingsInRange(int range, Type type)
     {
-        return !IsInFogOfWar || Map.IsRevealed;
+        return TilesInRange(range).Where(x => x.Building != null && x.Building.GetType() == type).Select(x => x.Building).ToList();
     }
+
 
     #endregion
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class BuildingPrefabCollection : MonoBehaviour
 {
+    public Building_Headquarter HQ;
     public Building_Radar Radar;
     public Building_City City;
 }
