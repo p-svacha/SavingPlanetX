@@ -6,29 +6,33 @@ using UnityEngine.UI;
 public class UI_Button : MonoBehaviour
 {
     public Button Button;
-    public Image Background;
     public Image Image;
+    public Text Text;
 
-    public ColorSettings Colors;
+    private Image Background;
 
-    private void Start()
+    void Start()
     {
-        
+        ColorBlock transitionColors = Button.colors;
+        transitionColors.disabledColor = Color.white;
+        Button.colors = transitionColors;
+        Background = Button.GetComponent<Image>();
     }
 
     public void SetEnabled(bool b)
     {
-        Colors = GameObject.Find("GameModel").GetComponent<GameModel>().ColorSettings;
         if (b)
         {
-            Background.color = Colors.UI_Interactive_Enabled_Back;
-            Image.color = Colors.UI_Interactive_Enabled_Front;
+            if(Background != null) Background.color = ColorSettings.Colors.UI_Interactive_Enabled_Back;
+            if(Image != null) Image.color = ColorSettings.Colors.UI_Interactive_Enabled_Front;
+            if(Text != null) Text.color = ColorSettings.Colors.UI_Interactive_Enabled_Front;
             Button.interactable = true;
         }
         else
         {
-            Background.color = Colors.UI_Interactive_Disabled_Back;
-            Image.color = Colors.UI_Interactive_Disabled_Front;
+            if(Background != null) Background.color = ColorSettings.Colors.UI_Interactive_Disabled_Back;
+            if(Image != null) Image.color = ColorSettings.Colors.UI_Interactive_Disabled_Front;
+            if(Text != null) Text.color = ColorSettings.Colors.UI_Interactive_Disabled_Front;
             Button.interactable = false;
         }
     }

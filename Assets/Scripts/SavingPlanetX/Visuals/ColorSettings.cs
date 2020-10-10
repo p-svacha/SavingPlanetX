@@ -19,4 +19,12 @@ public class ColorSettings : ScriptableObject
     public Color UI_Interactive_Disabled_Front;
 
     public Color BuildingSelectedColor;
+
+    public static ColorSettings Colors
+    {
+        get
+        {
+            return GameObject.Find("GameModel").GetComponent<GameModel>().ColorSettings;
+        }
+    }
 }

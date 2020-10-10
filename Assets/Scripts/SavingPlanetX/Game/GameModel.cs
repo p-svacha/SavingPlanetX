@@ -28,7 +28,12 @@ public class GameModel : MonoBehaviour
     public Tile HoveredTile { get; private set; }
     public Building SelectedBuilding { get; private set; }
 
+    // Events
+    public UI_MorningReport ActiveReport;
     public GameEventHandler EventHandler;
+    public GameEvent DayEvent;
+
+    // Disasters
     public DisasterHandler DisasterHandler;
     public List<Disaster> CycleDisasters;
     public Disaster ActiveDisaster;
@@ -169,7 +174,6 @@ public class GameModel : MonoBehaviour
 
         return newBuilding;
     }
-
     public void DestroyBuilding(Building b)
     {
         b.OnDestroyed();
@@ -181,7 +185,6 @@ public class GameModel : MonoBehaviour
         UpdateVisibility();
         GameUI.ResourceInfo.UpdatePanel();
     }
-
     public void RepairBuilding(Building b)
     {
         b.Repair();
@@ -199,7 +202,6 @@ public class GameModel : MonoBehaviour
         DoChangeInstability(-amount);
         if (amount != 0 && source != null && source.Tile.IsVisible) GameUI.CreateInfoBlob(source.gameObject, amount.ToString(), ColorSettings.UI_Text_Positive, Color.grey);
     }
-
     public void DecreaseStability(float amount, Building source = null)
     {
         DoChangeInstability(amount);
@@ -271,23 +273,32 @@ public class GameModel : MonoBehaviour
         foreach (Building b in Buildings) b.CycleActionTime = Random.Range(1, CYCLE_TIME);
         foreach (Disaster d in CycleDisasters) d.SetTime(Cycle, Random.Range(1, CYCLE_TIME));
 
+        GameUI.MenuPanel.UpdatePanel();
     }
 
     private void StartNewDay()
     {
+        GameState = GameState.Idle;
+        GameUI.DisableEndDayButton();
+
         Cycle++;
         CycleTime = 0;
 
-        GameState = GameState.EventDialog;
         Sun.transform.rotation = Quaternion.Euler(50, -30, 0);
         Moon.intensity = 0f;
 
-        EventHandler.CastRandomEvent();
+        DayEvent = EventHandler.GetRandomEvent();
+
+        ActiveReport = GameUI.InitAndShowMorningReport();
+
+        GameUI.MenuPanel.UpdatePanel();
     }
 
-    public void EndEvent()
+    public void EventHandled()
     {
-        GameState = GameState.Idle;
+        DayEvent.EventHandled = true;
+        GameUI.EnableEndDayButton();
+        ActiveReport.EventTab.UpdateTabColor();
     }
 
     #endregion
@@ -340,7 +351,16 @@ public class GameModel : MonoBehaviour
         GameState = GameState.Idle;
     }
 
-    # endregion
+    #endregion
+
+    #region Menu UI
+
+    public void ToggleReport()
+    {
+        ActiveReport.gameObject.SetActive(!ActiveReport.gameObject.activeSelf);
+    }
+
+    #endregion
 
     #region Initialize New Game
     public void StartNewGame(int mapWidth, int mapHeight)

@@ -18,12 +18,7 @@ public class GameEventHandler
         Model = model;
     }
 
-    public void CastEvent(GameEvent e)
-    {
-        e.Cast(Model);
-    }
-
-    public void CastRandomEvent()
+    public GameEvent GetRandomEvent()
     {
         GameEvent chosenEvent = null;
         float probSum = EventList.Sum(x => x.GetProbability(Model));
@@ -38,7 +33,7 @@ public class GameEventHandler
                 break;
             }
         }
-        CastEvent(chosenEvent);
+        return chosenEvent;
     }
     
 }

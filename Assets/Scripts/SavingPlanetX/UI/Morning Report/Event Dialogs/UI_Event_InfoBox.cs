@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_InfoBox : MonoBehaviour
+public class UI_Event_InfoBox : MonoBehaviour
 {
     public Text Title;
     public Text Text;
     public Text IdText;
     public Text ButtonText;
-    public Button OkButton;
+    public UI_Button OkButton;
 
     public void Initialize(string title, string text, string idText, string buttonText, Action buttonAction)
     {
@@ -18,12 +18,12 @@ public class UI_InfoBox : MonoBehaviour
         Text.text = text;
         IdText.text = idText;
         ButtonText.text = buttonText;
-        OkButton.onClick.AddListener(() => DestroySelf());
-        if (buttonAction != null) OkButton.onClick.AddListener(() => buttonAction.Invoke() );
+        OkButton.Button.onClick.AddListener(() => DisableButton());
+        if (buttonAction != null) OkButton.Button.onClick.AddListener(() => buttonAction.Invoke() );
     }
 
-    private void DestroySelf()
+    private void DisableButton()
     {
-        Destroy(gameObject);
+        OkButton.SetEnabled(false);
     }
 }

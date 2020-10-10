@@ -8,7 +8,6 @@ public enum GameState
     Idle,
     BuildMode,
     DayCycle,
-    EventDialog,
     AlertFlash,
     MoveToDisaster,
     DisasterOccuring,

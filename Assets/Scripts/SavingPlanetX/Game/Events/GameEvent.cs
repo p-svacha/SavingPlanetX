@@ -5,12 +5,8 @@ using UnityEngine;
 public abstract class GameEvent
 {
     public int Id;
+    public bool EventHandled;
 
     public abstract float GetProbability(GameModel model);
-    public abstract void Cast(GameModel model);
-
-    public void EndEvent(GameModel model)
-    {
-        model.EndEvent();
-    }
+    public abstract RectTransform GetEventDialog(GameModel model);
 }

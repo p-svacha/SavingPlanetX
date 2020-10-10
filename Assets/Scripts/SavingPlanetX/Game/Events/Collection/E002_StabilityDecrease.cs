@@ -18,14 +18,14 @@ public class E002_StabilityDecrease : GameEvent
         return BaseProbability + ((model.GameSettings.MaxInstability - model.StarInstabilityLevel) / 10f);
     }
 
-    public override void Cast(GameModel model)
+    public override RectTransform GetEventDialog(GameModel model)
     {
-        model.GameUI.ShowInfoBox(Title, Text, Id.ToString(), "OK", () => ApplyEffect(model) );
+        return model.GameUI.GetInfoBox(Title, Text, Id.ToString(), "OK", () => ApplyEffect(model) );
     }
 
     private void ApplyEffect(GameModel model)
     {
         model.DecreaseStability(2);
-        EndEvent(model);
+        model.EventHandled();
     }
 }

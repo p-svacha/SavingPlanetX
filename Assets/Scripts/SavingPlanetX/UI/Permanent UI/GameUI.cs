@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,26 +8,31 @@ public class GameUI : MonoBehaviour
     public GameModel Model;
 
     // Prefabs
-    public RectTransform PanelPrefab;
-    public UI_CityLabel CityLabel;
-    public UI_InfoBox InfoBox;
-    public UI_InfoBlob InfoBlob;
+    public RectTransform Prefab_Panel;
+    public UI_CityLabel Prefab_CityLabel;
+    public UI_Event_InfoBox Prefab_InfoBox;
+    public UI_InfoBlob Prefab_InfoBlob;
+    public UI_MorningReport Prefab_MorningReport;
 
     // UI Elements
     public Image AlertPanel;
     public RectTransform LabelsPanel;
     public RectTransform DialogPanel;
-    public Button EndTurnButton;
+    public UI_Button EndDayButton;
     public Text TileInfoText;
     public RectTransform InstabilityPanel;
     public UI_BuildPanel BuildPanel;
     public UI_BuildingInfo BuildingInfo;
     public UI_ResourceInfo ResourceInfo;
+    public UI_MenuPanel MenuPanel;
 
     // Variables
     private bool AlertFlash;
     private int TransparencyChange;
     private const float ALERT_FLASH_SPEED = 1f;
+
+    // Dynamic UI Elements
+    public List<UI_MorningReport> MorningReports;
 
     private void Update()
     {
@@ -36,7 +42,7 @@ public class GameUI : MonoBehaviour
 
     public void UpdateTileInfo()
     {
-         TileInfoText.text = GetTileInfoText(Model.HoveredTile);
+        TileInfoText.text = GetTileInfoText(Model.HoveredTile);
     }
 
     public void UpdateInstabilityPanel()
@@ -49,10 +55,11 @@ public class GameUI : MonoBehaviour
     public void Initialize(GameModel model)
     {
         Model = model;
-        InitEndTurnButton();
+        InitEndDayButton();
         InitInstabilityPanel();
         BuildPanel.Init(Model);
         ResourceInfo.Init(Model);
+        MenuPanel.Init(Model);
         BuildingInfo.gameObject.SetActive(false);
 
         UpdateInstabilityPanel();
@@ -65,7 +72,7 @@ public class GameUI : MonoBehaviour
         float gapSize = stepSize * gap;
         for (int i = 0; i < Model.GameSettings.MaxInstability; i++)
         {
-            RectTransform levelPanel = Instantiate(PanelPrefab, InstabilityPanel.transform);
+            RectTransform levelPanel = Instantiate(Prefab_Panel, InstabilityPanel.transform);
             levelPanel.anchorMin = new Vector2(gapSize + i * stepSize, 0.05f);
             levelPanel.anchorMax = new Vector2(((i + 1) * stepSize) - gapSize, 0.95f);
 
@@ -73,19 +80,44 @@ public class GameUI : MonoBehaviour
         }
     }
 
-    private void InitEndTurnButton()
+    #endregion
+
+    #region Morning Report
+
+    public UI_MorningReport InitAndShowMorningReport()
     {
-        EndTurnButton.onClick.AddListener(() => { Model.EndDay(); });
+        UI_MorningReport newReport = Instantiate(Prefab_MorningReport, DialogPanel);
+        newReport.Init(Model);
+        MorningReports.Add(newReport);
+        return newReport;
+    }
+
+    public RectTransform GetInfoBox(string title, string text, string idText, string buttonText = "OK", Action buttonAction = null)
+    {
+        UI_Event_InfoBox infoBox = Instantiate(Prefab_InfoBox, DialogPanel);
+        infoBox.Initialize(title, text, idText, buttonText, buttonAction);
+        return infoBox.GetComponent<RectTransform>();
     }
 
     #endregion
 
-    #region Dialog
-
-    public void ShowInfoBox(string title, string text, string idText, string buttonText = "OK", Action buttonAction = null)
+    #region End Turn Button
+    private void InitEndDayButton()
     {
-        UI_InfoBox infoBox = Instantiate(InfoBox, DialogPanel);
-        infoBox.Initialize(title, text, idText, buttonText, buttonAction);
+        EndDayButton.Button.onClick.AddListener(() => { Model.EndDay(); });
+        EnableEndDayButton();
+    }
+
+    public void EnableEndDayButton()
+    {
+        EndDayButton.SetEnabled(true);
+        EndDayButton.Text.text = "End Day";
+    }
+
+    public void DisableEndDayButton()
+    {
+        EndDayButton.SetEnabled(false);
+        EndDayButton.Text.text = "Complete Event to End Day";
     }
 
     #endregion
@@ -94,7 +126,7 @@ public class GameUI : MonoBehaviour
 
     public void CreateInfoBlob(GameObject target, string blobText, Color textColor, Color bgColor)
     {
-        UI_InfoBlob infoBlob = Instantiate(InfoBlob, LabelsPanel);
+        UI_InfoBlob infoBlob = Instantiate(Prefab_InfoBlob, LabelsPanel);
         infoBlob.Initialize(target, blobText, textColor, bgColor);
     }
 

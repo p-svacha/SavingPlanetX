@@ -18,14 +18,14 @@ public class E001_StabilityIncrease : GameEvent
         return BaseProbability + (model.StarInstabilityLevel / 10f);
     }
 
-    public override void Cast(GameModel model)
+    public override RectTransform GetEventDialog(GameModel model)
     {
-        model.GameUI.ShowInfoBox(Title, Text, Id.ToString(), "Cool", () => ApplyEffect(model) );
+        return model.GameUI.GetInfoBox(Title, Text, Id.ToString(), "Cool", () => ApplyEffect(model) );
     }
 
     private void ApplyEffect(GameModel model)
     {
         model.IncreaseStability(2);
-        EndEvent(model);
+        model.EventHandled();
     }
 }
