@@ -6,6 +6,5 @@ public enum DisasterState
 {
     Planned,
     Active,
-    Occuring, // currently in animation
     Completed
 }

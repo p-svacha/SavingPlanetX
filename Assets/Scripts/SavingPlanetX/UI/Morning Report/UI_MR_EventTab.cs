@@ -11,14 +11,37 @@ public class UI_MR_EventTab : MonoBehaviour
     public Image InactiveTabBackground;
     public Text TabText;
 
+    public Text EventText;
+    public Text IdText;
+    public UI_Button[] Buttons;
+
     public RectTransform ContentPanel;
 
     public void Init(GameModel model)
     {
         Event = model.DayEvent;
-        RectTransform eventDialog = Event.GetEventDialog(model);
-        eventDialog.SetParent(ContentPanel.transform);
+        UpdateContent();
         UpdateTabColor();
+    }
+
+    public void UpdateContent()
+    {
+        EventText.text = Event.Text;
+        IdText.text = Event.Id.ToString();
+        Debug.Log(Event.Options.Count);
+        for (int i = 0; i < Buttons.Length; i++)
+        {
+            Buttons[i].Button.onClick.RemoveAllListeners();
+            if (i >= Event.Options.Count) Buttons[i].gameObject.SetActive(false);
+            else
+            {
+                int j = i;
+                Buttons[i].SetEnabled(true);
+                Buttons[i].gameObject.SetActive(true);
+                Buttons[i].Text.text = Event.Options[i].Item1;
+                Buttons[i].Button.onClick.AddListener(() => { Event.Options[j].Item2.Invoke(); UpdateContent(); });
+            }
+        }
     }
 
     public void UpdateTabColor()

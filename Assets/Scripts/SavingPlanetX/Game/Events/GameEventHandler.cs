@@ -9,6 +9,7 @@ public class GameEventHandler
     {
         new E001_StabilityIncrease(),
         new E002_StabilityDecrease(),
+        new E003_StealFromCity()
     };
 
     private GameModel Model;

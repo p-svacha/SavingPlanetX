@@ -181,7 +181,7 @@ public class Tile : MonoBehaviour
         return TilesInRange(range).Where(x => x.Building != null && x.Building.GetType() == type).Select(x => x.Building).ToList();
     }
 
-    public Building_City NearestSettlement
+    public City NearestSettlement
     {
         get
         {
@@ -193,7 +193,7 @@ public class Tile : MonoBehaviour
                     foreach (Tile n in t.NeighbourTiles.Where(x => x != null)) tilesToAdd.Add(n);
                 foreach (Tile t in tilesToAdd)
                 {
-                    if (t.Building != null && t.Building.GetType() == typeof(Building_City)) return (Building_City)t.Building;
+                    if (t.Building != null && t.Building.GetType() == typeof(City)) return (City)t.Building;
                     tilesInRange.Add(t);
                 }
             }

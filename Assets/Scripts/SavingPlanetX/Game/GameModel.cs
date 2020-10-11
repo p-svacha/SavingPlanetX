@@ -112,8 +112,8 @@ public class GameModel : MonoBehaviour
                 else if (sunRotation.x < 320) Moon.intensity = MAX_MOON_INTENSITY;
                 else if(sunRotation.x < 400 ) Moon.intensity = MAX_MOON_INTENSITY - ((sunRotation.x - 320) / 80 * MAX_MOON_INTENSITY);
                 else Moon.intensity = 0f;
-                if ((int)sunRotation.x == 180) foreach (Building_City city in Cities) city.CityLight.intensity = 1f;
-                if ((int)sunRotation.x == 360) foreach (Building_City city in Cities) city.CityLight.intensity = 0f;
+                if ((int)sunRotation.x == 180) foreach (City city in Cities) city.CityLight.intensity = 1f;
+                if ((int)sunRotation.x == 360) foreach (City city in Cities) city.CityLight.intensity = 0f;
                 break;
 
             case GameState.AlertFlash:
@@ -133,7 +133,6 @@ public class GameModel : MonoBehaviour
                     if (_disasterTime > DISASTER_START_TIME_OFFSET)
                     {
                         ActiveDisaster.CastVisualEffect();
-                        ActiveDisaster.State = DisasterState.Occuring;
                         ActiveDisaster.ApplyEffect();
                         GameState = GameState.DisasterOccuring;
                         _disasterTime = 0f;
@@ -142,14 +141,11 @@ public class GameModel : MonoBehaviour
                 break;
 
             case GameState.DisasterOccuring:
-                if(ActiveDisaster.State != DisasterState.Occuring)
+                _disasterTime += Time.deltaTime;
+                if(_disasterTime > DISASTER_END_TIME_OFFSET)
                 {
-                    _disasterTime += Time.deltaTime;
-                    if(_disasterTime > DISASTER_END_TIME_OFFSET)
-                    {
-                        GameUI.Alert_StopFlash();
-                        GameState = GameState.DayCycle;
-                    }
+                    GameUI.Alert_StopFlash();
+                    GameState = GameState.DayCycle;
                 }
 
                 break;
@@ -227,6 +223,15 @@ public class GameModel : MonoBehaviour
         if (amount != 0 && source != null && source.Tile.IsVisible) GameUI.CreateInfoBlob(source.gameObject, amount.ToString(), ColorSettings.UI_Text_Negative, Color.yellow);
     }
 
+    public void ImproveRelationship(City city, float amount)
+    {
+        city.ChangeRelationship(amount);
+    }
+    public void WorsenRelationship(City city, float amount)
+    {
+        city.ChangeRelationship(-amount);
+    }
+
     public void RevealMap(bool doReveal)
     {
         Map.IsRevealed = doReveal;
@@ -296,6 +301,7 @@ public class GameModel : MonoBehaviour
         Moon.intensity = 0f;
 
         DayEvent = EventHandler.GetRandomEvent();
+        DayEvent.Initialize(this);
         ActiveReport = GameUI.InitAndShowMorningReport();
         ActiveReport.EventTab.UpdateTabColor();
 
@@ -404,7 +410,7 @@ public class GameModel : MonoBehaviour
         PlaceRandomCities();
 
         // Choose random starting (next to a city) tile to place Headquarters
-        List<Tile> startRadarCandidates = Map.TilesList.Where(x => BPC.HQ.CanBuildOn(x) && x.BuildingsInRange(GameSettings.Headquarter_VisibilityRange, typeof(Building_City)).Count == 1).ToList();
+        List<Tile> startRadarCandidates = Map.TilesList.Where(x => BPC.HQ.CanBuildOn(x) && x.BuildingsInRange(GameSettings.Headquarter_VisibilityRange, typeof(City)).Count == 1).ToList();
         Tile startingTile = startRadarCandidates[Random.Range(0, startRadarCandidates.Count)];
         PlaceBuilding(startingTile, BPC.HQ, initializing: true);
 
@@ -429,7 +435,7 @@ public class GameModel : MonoBehaviour
         {
             List<Tile> candidates = Map.TilesList.Where(x => BPC.City.CanBuildOn(x)).ToList();
             Tile cityTile = candidates[Random.Range(0, candidates.Count)];
-            Building_City newCity = (Building_City)PlaceBuilding(cityTile, BPC.City, initializing: true);
+            City newCity = (City)PlaceBuilding(cityTile, BPC.City, initializing: true);
         }
     }
 
@@ -463,18 +469,18 @@ public class GameModel : MonoBehaviour
 
     #region Getters
 
-    public List<Building_City> Cities
+    public List<City> Cities
     {
         get
         {
-            return Buildings.Where(x => x.GetType() == typeof(Building_City)).Select(x => (Building_City)x).ToList();
+            return Buildings.Where(x => x.GetType() == typeof(City)).Select(x => (City)x).ToList();
         }
     }
     public List<Building> PlayerBuildings
     {
         get
         {
-            return Buildings.Where(x => x.GetType() != typeof(Building_City)).ToList();
+            return Buildings.Where(x => x.GetType() != typeof(City)).ToList();
         }
     }
 

@@ -30,6 +30,15 @@ public class Hurricane : Disaster
     {
         DayDamage = 0;
 
+        // Visual
+        if(State == DisasterState.Planned)
+        {
+            HurricaneParticles = GameObject.Instantiate(ParticleSystemCollection.ParticleSystems.Hurricane);
+            HurricaneParticles.transform.position = Center.transform.position;
+            float size = BaseSize + (Intensity - 1) * SizePerIntensity;
+            HurricaneParticles.transform.localScale = new Vector3(size, size, size);
+        }
+
         State = DisasterState.Active;
         Center = Path[Day];
 
@@ -51,19 +60,16 @@ public class Hurricane : Disaster
 
     public override void CastVisualEffect()
     {
-        switch(State)
-        {
-            case DisasterState.Planned:
-                HurricaneParticles = GameObject.Instantiate(ParticleSystemCollection.ParticleSystems.Hurricane, Center.transform);
-                float size = BaseSize + (Intensity - 1) * SizePerIntensity;
-                HurricaneParticles.transform.localScale = new Vector3(size, size, size);
-                break;
-        }
+
     }
 
     public override void Update()
     {
-        if(HurricaneParticles != null) HurricaneParticles.transform.position = Vector3.MoveTowards(HurricaneParticles.transform.position, Center.transform.position, MoveSpeed);
+        if (HurricaneParticles != null)
+        {
+            HurricaneParticles.transform.position = Vector3.MoveTowards(HurricaneParticles.transform.position, Center.transform.position, MoveSpeed);
+            HurricaneParticles.gameObject.SetActive(Center.IsVisible);
+        }
     }
 
     private void GeneratePath()

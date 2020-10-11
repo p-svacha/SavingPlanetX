@@ -22,19 +22,20 @@ public class UI_CityLabel : UI_BuildingLabel
     public override void UpdatePanel()
     {
         base.UpdatePanel();
-        Building_City city = (Building_City)Building;
+        City city = (City)Building;
         CityName.text = city.CityName;
         SetRelationshipImage(city);
         SetEmissionImage(city);
     }
 
-    private void SetRelationshipImage(Building_City city)
+    private void SetRelationshipImage(City city)
     {
-        RelationImage.sprite = Building.Model.Icons.Relationship[Mathf.RoundToInt(city.Relationship)];
-        RelationImage.color = Building.Model.ColorSettings.AlertColors[4 - Mathf.RoundToInt(city.Relationship)];
+        int relationship = (int)city.RelationshipStatus;
+        RelationImage.sprite = Building.Model.Icons.Relationship[relationship];
+        RelationImage.color = Building.Model.ColorSettings.AlertColors[4 - relationship];
     }
 
-    private void SetEmissionImage(Building_City city)
+    private void SetEmissionImage(City city)
     {
         float imageGap = 0.015f;
         int index = Mathf.Clamp((int)(city.EmissionsPerCycle * (1f / imageGap)), 0, 4);

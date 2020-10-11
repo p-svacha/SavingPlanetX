@@ -10,7 +10,6 @@ public class GameUI : MonoBehaviour
     // Prefabs
     public RectTransform Prefab_Panel;
     public UI_CityLabel Prefab_CityLabel;
-    public UI_Event_InfoBox Prefab_InfoBox;
     public UI_InfoBlob Prefab_InfoBlob;
     public UI_MorningReport Prefab_MorningReport;
 
@@ -90,13 +89,6 @@ public class GameUI : MonoBehaviour
         newReport.Init(Model);
         MorningReports.Add(newReport);
         return newReport;
-    }
-
-    public RectTransform GetInfoBox(string title, string text, string idText, string buttonText = "OK", Action buttonAction = null)
-    {
-        UI_Event_InfoBox infoBox = Instantiate(Prefab_InfoBox, DialogPanel);
-        infoBox.Initialize(title, text, idText, buttonText, buttonAction);
-        return infoBox.GetComponent<RectTransform>();
     }
 
     #endregion

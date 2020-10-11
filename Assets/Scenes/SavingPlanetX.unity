@@ -1898,8 +1898,6 @@ MonoBehaviour:
     type: 3}
   Prefab_CityLabel: {fileID: 557206936859494943, guid: ce3ccc01f92c7cd48b31dec73710c1c4,
     type: 3}
-  Prefab_InfoBox: {fileID: 8628076604091042917, guid: 127abf1fe53a98a418d6d0e07e0c2108,
-    type: 3}
   Prefab_InfoBlob: {fileID: 1508747574726706727, guid: cc1fdbf80861e2d40b5aaf4941251143,
     type: 3}
   Prefab_MorningReport: {fileID: 263897255752118389, guid: 1484c46b395cc6f4a8e5a562e1ce3f28,
@@ -4097,7 +4095,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HQ: {fileID: 3163539463910307850, guid: 75d6acf33b9d62842a9c749fb1abfa9f, type: 3}
   Radar: {fileID: 8881993349575957793, guid: 281eda1fe960ade4fb96541e845d326d, type: 3}
-  City: {fileID: 8895645980177437625, guid: d833aa6e654f17d4c9119bc7cf9cdf3d, type: 3}
+  City: {fileID: 1945835374949938982, guid: d833aa6e654f17d4c9119bc7cf9cdf3d, type: 3}
 --- !u!4 &1917220321
 Transform:
   m_ObjectHideFlags: 0

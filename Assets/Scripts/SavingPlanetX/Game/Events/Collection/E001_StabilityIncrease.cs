@@ -1,16 +1,23 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class E001_StabilityIncrease : GameEvent
 {
     private const float BaseProbability = 1f;
-    private const string Title = "Stability Increase";
-    private const string Text = "The star has unexpectedly stabilized by 2 points.";
 
-    public E001_StabilityIncrease()
+    public override void Initialize(GameModel model)
     {
+        base.Initialize(model);
+
         Id = 1;
+
+        Text = "The star has unexpectedly stabilized by 2 points.";
+        Options = new List<Tuple<string, Action>>
+        {
+            new Tuple<string, Action>("OK", () => ApplyEffect(model))
+        };
     }
 
     public override float GetProbability(GameModel model)
@@ -18,13 +25,9 @@ public class E001_StabilityIncrease : GameEvent
         return BaseProbability + (model.InstabilityLevel / 10f);
     }
 
-    public override RectTransform GetEventDialog(GameModel model)
-    {
-        return model.GameUI.GetInfoBox(Title, Text, Id.ToString(), "Cool", () => ApplyEffect(model) );
-    }
-
     private void ApplyEffect(GameModel model)
     {
+        Options.Clear();
         model.IncreaseStability(2);
         model.EventHandled();
     }
