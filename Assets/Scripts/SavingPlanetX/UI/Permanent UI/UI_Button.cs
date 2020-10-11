@@ -5,22 +5,26 @@ using UnityEngine.UI;
 
 public class UI_Button : MonoBehaviour
 {
+    private bool Initialized;
+
     public Button Button;
     public Image Image;
     public Text Text;
 
     private Image Background;
 
-    void Start()
+    private void Initialize()
     {
         ColorBlock transitionColors = Button.colors;
         transitionColors.disabledColor = Color.white;
         Button.colors = transitionColors;
         Background = Button.GetComponent<Image>();
+        Initialized = true;
     }
 
     public void SetEnabled(bool b)
     {
+        if (!Initialized) Initialize();
         if (b)
         {
             if(Background != null) Background.color = ColorSettings.Colors.UI_Interactive_Enabled_Back;

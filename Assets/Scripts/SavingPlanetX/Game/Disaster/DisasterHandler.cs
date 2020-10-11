@@ -1,51 +1,86 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class DisasterHandler
 {
-    private const float INTENSITY_STANDARD_DEV = 0.5f;
-
-    private const float BASE_EARTHQUAKE_CHANCE = 1f;
-    private const float BASE_EARTHQUAKE_CHANCE_RISE = 0.01f;
-    private const float EARTHQUAKE_CHANCE_RISE_PER_INSTABILITY = 0.01f;
-
     private GameModel Model;
 
     private float EarthquakeChance;
+    private float HurricaneChance;
+
+    private List<Disaster> ActiveDisasters = new List<Disaster>();
 
     public DisasterHandler(GameModel model)
     {
         Model = model;
 
-        EarthquakeChance = BASE_EARTHQUAKE_CHANCE;
+        EarthquakeChance = GameSettings.Settings.Earthquake_BaseChance;
+        HurricaneChance = GameSettings.Settings.Hurricane_BaseChance;
+    }
+
+    public void Update()
+    {
+        foreach (Disaster d in ActiveDisasters) d.Update();
     }
 
     // Prepares and returns the disasters that will occur in the upcoming cycle
     public List<Disaster> GetDisastersForCycle()
     {
-        List<Disaster> cycleDisasters = new List<Disaster>();
+        ActiveDisasters = Model.CycleDisasters.Where(x => x.State == DisasterState.Active).ToList(); // Take active disasters from last cycle
 
         // Earthquake
-        EarthquakeChance += BASE_EARTHQUAKE_CHANCE_RISE + Model.StarInstabilityLevel * EARTHQUAKE_CHANCE_RISE_PER_INSTABILITY;
-        if (Random.value < EarthquakeChance) cycleDisasters.Add(GetRandomEarthquake());
+        EarthquakeChance += GameSettings.Settings.Earthquake_BaseRise + Model.InstabilityLevel * GameSettings.Settings.Earthquake_RisePerInstability;
+        if (Random.value < EarthquakeChance) ActiveDisasters.Add(GetRandomEarthquake());
 
-        return cycleDisasters;
+        // Hurricane
+        HurricaneChance += GameSettings.Settings.Hurricane_BaseRise + Model.InstabilityLevel * GameSettings.Settings.Hurricane_RisePerInstability;
+        if (Random.value < HurricaneChance) ActiveDisasters.Add(GetRandomHurricane());
+
+        return ActiveDisasters;
     }
 
+    #region Earthquake
     private Earthquake GetRandomEarthquake()
     {
-        EarthquakeChance = BASE_EARTHQUAKE_CHANCE;
-        List<Tile> epicenterCandidates = Model.Map.LandTiles;
+        EarthquakeChance = GameSettings.Settings.Earthquake_BaseChance;
+        List<Tile> epicenterCandidates = GetEarthquakeCandidateTiles();
         Tile epicenter = epicenterCandidates[Random.Range(0, epicenterCandidates.Count)];
         int intensity = GetDisasterIntensity();
         return new Earthquake(Model, epicenter, intensity);
     }
 
+    private List<Tile> GetEarthquakeCandidateTiles()
+    {
+        return Model.Map.LandTiles;
+    }
+
+    #endregion
+
+    #region Hurricane
+    private Hurricane GetRandomHurricane()
+    {
+        HurricaneChance = GameSettings.Settings.Hurricane_BaseChance;
+        List<Tile> centerCandidates = GetHurricaneCandidateTiles();
+        Tile center = centerCandidates[Random.Range(0, centerCandidates.Count)];
+        int intensity = GetDisasterIntensity();
+        return new Hurricane(Model, center, intensity);
+    }
+
+    private List<Tile> GetHurricaneCandidateTiles()
+    {
+        return Model.Map.TilesList.Where(x => x.Type == TileType.Water && x.Temperature >= 25).ToList();
+    }
+
+
+    #endregion
+
+    #region Helper
     private int GetDisasterIntensity()
     {
-        float baseIntensity = (Model.StarInstabilityLevel / Model.GameSettings.MaxInstability * 4) + 1;
-        return Mathf.Clamp(Mathf.RoundToInt(NextNormalRandom(baseIntensity, INTENSITY_STANDARD_DEV)), 1, 5);
+        float baseIntensity = (Model.InstabilityLevel / Model.GameSettings.MaxInstability * 4) + 1;
+        return Mathf.Clamp(Mathf.RoundToInt(NextNormalRandom(baseIntensity, GameSettings.Settings.Disaster_StandardDeviation)), 1, 5);
     }
 
     public static float NextNormalRandom(float mean, float standardDeviation)
@@ -64,4 +99,6 @@ public class DisasterHandler
         float normalizedVal = u * fac; // mean 0, standardDev 1
         return mean + standardDeviation * normalizedVal;
     }
+
+    #endregion
 }

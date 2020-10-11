@@ -891,6 +891,7 @@ MonoBehaviour:
   GameUI: {fileID: 831902253}
   BPC: {fileID: 1917220320}
   MaterialCollection: {fileID: 1536005079}
+  PSC: {fileID: 1788451686}
   Icons: {fileID: 629069863}
   GameSettings: {fileID: 11400000, guid: 9d6f7ce6b20896245b80038d905d9c68, type: 2}
   ColorSettings: {fileID: 11400000, guid: 861fd0786d6021a4f9ee811e985808f6, type: 2}
@@ -1602,6 +1603,21 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 7438998589754459679, guid: e6dbb3c7ab664f94dba6eff477aec252,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438998589754459679, guid: e6dbb3c7ab664f94dba6eff477aec252,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438998589754459679, guid: e6dbb3c7ab664f94dba6eff477aec252,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7496613505607039028, guid: e6dbb3c7ab664f94dba6eff477aec252,
         type: 3}
       propertyPath: m_Name
@@ -1696,7 +1712,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: New Text
+  m_Text: '{ Building Description }'
 --- !u!222 &771286012
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2558,6 +2574,7 @@ Transform:
   - {fileID: 1917220321}
   - {fileID: 1536005078}
   - {fileID: 629069862}
+  - {fileID: 1788451685}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3186,7 +3203,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: '{ Building Name}'
+  m_Text: '{ Building }'
 --- !u!222 &1433665482
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3746,6 +3763,51 @@ MonoBehaviour:
   Model: {fileID: 0}
   Background: {fileID: 1626228835}
   ReportButton: {fileID: 1169364961}
+--- !u!1 &1788451684
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1788451685}
+  - component: {fileID: 1788451686}
+  m_Layer: 0
+  m_Name: ParticleSystemCollection
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1788451685
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1788451684}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 999083524}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1788451686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1788451684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 345146412154b044ba9db2aedd30f39b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Hurricane: {fileID: 3547796286818859226, guid: f83e2e5ac8d5cde4e8fdbe7e0e8c4846,
+    type: 3}
 --- !u!1 &1789239280
 GameObject:
   m_ObjectHideFlags: 0
@@ -3822,13 +3884,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1789239280}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.2389571, y: 0, z: 0, w: 0.9710302}
+  m_LocalPosition: {x: 0, y: 5.17, z: -0.16}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 27.65, y: 0, z: 0}
 --- !u!1 &1807740492
 GameObject:
   m_ObjectHideFlags: 0

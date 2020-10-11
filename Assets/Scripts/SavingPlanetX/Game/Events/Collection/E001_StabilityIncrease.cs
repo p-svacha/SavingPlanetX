@@ -15,7 +15,7 @@ public class E001_StabilityIncrease : GameEvent
 
     public override float GetProbability(GameModel model)
     {
-        return BaseProbability + (model.StarInstabilityLevel / 10f);
+        return BaseProbability + (model.InstabilityLevel / 10f);
     }
 
     public override RectTransform GetEventDialog(GameModel model)

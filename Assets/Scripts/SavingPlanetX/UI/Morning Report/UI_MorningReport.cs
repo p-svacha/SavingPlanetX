@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class UI_MorningReport : MonoBehaviour
 {
+    // Elements
     public UI_MR_SummaryTab SummaryTab;
     public UI_MR_DisasterTab DisasterTab;
     public UI_MR_EventTab EventTab;
@@ -13,6 +14,7 @@ public class UI_MorningReport : MonoBehaviour
 
     public void Init(GameModel model)
     {
+        Day = model.Day;
         SummaryTab.Init(model);
         DisasterTab.Init(model);
         EventTab.Init(model);

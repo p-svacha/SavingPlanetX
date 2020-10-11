@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class Disaster
 {
-    private int DisasterId = 1;
+    private int DisasterId = 0;
 
     public GameModel Model;
 
@@ -18,9 +18,16 @@ public abstract class Disaster
 
     public DisasterState State;
 
-    public Disaster(GameModel model)
+    public int DayDamage;
+    public int TotalDamage;
+
+    public int Day;
+
+    public Disaster(GameModel model, Tile center, int intensity)
     {
         Model = model;
+        Center = center;
+        Intensity = intensity;
         Id = DisasterId++;
         State = DisasterState.Planned;
     }
@@ -33,4 +40,5 @@ public abstract class Disaster
 
     public abstract void ApplyEffect();
     public abstract void CastVisualEffect();
+    public virtual void Update() { }
 }

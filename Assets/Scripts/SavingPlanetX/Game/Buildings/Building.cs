@@ -56,11 +56,15 @@ public abstract class Building : MonoBehaviour
         UILabel.Init(this);
     }
 
-    public void DealDamage(int dmg)
+    /// <summary>
+    /// Damages this building. Returns the amount of damage that was actually done.
+    /// </summary>
+    public int DealDamage(int dmg)
     {
         Health -= dmg;
         if (Health <= 0) Model.DestroyBuilding(this);
         else UILabel.UpdateHealthbar();
+        return dmg;
     }
 
     public void Repair()

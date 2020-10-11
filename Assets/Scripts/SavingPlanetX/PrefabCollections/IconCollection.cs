@@ -11,4 +11,12 @@ public class IconCollection : MonoBehaviour
 
     public Sprite[] Relationship = new Sprite[5];
     public Sprite[] Emission = new Sprite[5];
+
+    public static IconCollection Icons
+    {
+        get
+        {
+            return GameObject.Find("GameModel").GetComponent<GameModel>().Icons;
+        }
+    }
 }

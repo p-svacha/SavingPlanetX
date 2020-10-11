@@ -6,24 +6,22 @@ public class Earthquake : Disaster
 {
     private const float RANGE_FACTOR = 2f;
 
-    public Tile Epicenter;
-
-    public Earthquake(GameModel model, Tile epicenter, int intensity) : base(model)
+    public Earthquake(GameModel model, Tile center, int intensity) : base(model, center, intensity)
     {
-        Intensity = intensity;
-        Epicenter = epicenter;
-        Center = epicenter;
+        Name = "Earthquake " + (model.Day + 1);
     }
 
     public override void ApplyEffect()
     {
+        DayDamage = 0;
         State = DisasterState.Completed;
         int range = (int)(Intensity * RANGE_FACTOR);
         for(int i = 0; i < range; i++)
         {
-            foreach (Tile t in Center.TilesWithDistance(i)) Model.DealDamage(t, Intensity - (int)(1f * i * (1f / RANGE_FACTOR)));
+            foreach (Tile t in Center.TilesWithDistance(i)) DayDamage += Model.DealDamage(t, Intensity - (int)(1f * i * (1f / RANGE_FACTOR)));
         }
-        Debug.Log("Earthquake happened with intensity " + Intensity);
+        TotalDamage += DayDamage;
+        Day++;
     }
 
     public override void CastVisualEffect()

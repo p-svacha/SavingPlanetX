@@ -48,7 +48,7 @@ public class GameUI : MonoBehaviour
     public void UpdateInstabilityPanel()
     {
         for (int i = 0; i < Model.GameSettings.MaxInstability; i++)
-            InstabilityPanel.transform.GetChild(i).gameObject.SetActive(i < Model.StarInstabilityLevel);
+            InstabilityPanel.transform.GetChild(i).gameObject.SetActive(i < Model.InstabilityLevel);
     }
 
     #region Initilaize UI

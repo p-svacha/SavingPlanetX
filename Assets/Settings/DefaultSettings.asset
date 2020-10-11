@@ -14,10 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NumCities: 15
   MaxInstability: 20
+  Disaster_StandardDeviation: 0.6
+  Earthquake_BaseChance: 0
+  Earthquake_BaseRise: 0.01
+  Earthquake_RisePerInstability: 0.01
+  Hurricane_BaseChance: 1
+  Hurricane_BaseRise: 0.01
+  Hurricane_RisePerInstability: 0.01
   Headquater_MaxHealth: 10
   Headquarter_VisibilityRange: 4
-  Headquarter_Gold: 10
+  Headquarter_Money: 10
+  Headquarter_RepairCost: 10
   City_MaxHealth: 5
   City_Emissions: 0.05
+  City_RepairCost: 10
   Radar_MaxHealth: 3
   Radar_VisiblityRange: 3
+  Radar_BuildCost: 30
+  Radar_RepairCost: 10

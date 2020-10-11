@@ -125,11 +125,15 @@ public class Tile : MonoBehaviour
         SetColor(DefaultColor);
     }
 
-    public void TakeDamage(int damage)
+    /// <summary>
+    /// Damages this tile and the building on it. Returns the amount of damage that was done to the building.
+    /// </summary>
+    public int TakeDamage(int damage)
     {
         Damaged = true;
         if(Type == TileType.Land) SetTexture(Map.Model.MaterialCollection.DamagedTexture);
-        if (Building != null) Building.DealDamage(damage);
+        if (Building != null) return Building.DealDamage(damage);
+        else return 0;
     }
 
     #region Getters
@@ -175,6 +179,25 @@ public class Tile : MonoBehaviour
     public List<Building> BuildingsInRange(int range, Type type)
     {
         return TilesInRange(range).Where(x => x.Building != null && x.Building.GetType() == type).Select(x => x.Building).ToList();
+    }
+
+    public Building_City NearestSettlement
+    {
+        get
+        {
+            HashSet<Tile> tilesInRange = new HashSet<Tile>() { this };
+            while(true)
+            {
+                HashSet<Tile> tilesToAdd = new HashSet<Tile>();
+                foreach (Tile t in tilesInRange)
+                    foreach (Tile n in t.NeighbourTiles.Where(x => x != null)) tilesToAdd.Add(n);
+                foreach (Tile t in tilesToAdd)
+                {
+                    if (t.Building != null && t.Building.GetType() == typeof(Building_City)) return (Building_City)t.Building;
+                    tilesInRange.Add(t);
+                }
+            }
+        }
     }
 
 

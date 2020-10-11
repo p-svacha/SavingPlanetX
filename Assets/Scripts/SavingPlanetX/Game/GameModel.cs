@@ -14,6 +14,7 @@ public class GameModel : MonoBehaviour
 
     public BuildingPrefabCollection BPC;
     public MaterialCollection MaterialCollection;
+    public ParticleSystemCollection PSC;
     public IconCollection Icons;
 
     public GameSettings GameSettings;
@@ -35,12 +36,16 @@ public class GameModel : MonoBehaviour
 
     // Disasters
     public DisasterHandler DisasterHandler;
-    public List<Disaster> CycleDisasters;
+    public List<Disaster> CycleDisasters = new List<Disaster>();
     public Disaster ActiveDisaster;
+    public Queue<Disaster> DisastersToShow = new Queue<Disaster>();
 
-    // Game values
+    // Resources
     public int Money { get; private set; }
-    public float StarInstabilityLevel { get; private set; }
+    public int Money_DayStart { get; private set; }
+
+    public float InstabilityLevel { get; private set; }
+    public float InstabilityLevel_DayStart { get; private set; }
 
 
     // Cycle values
@@ -75,6 +80,7 @@ public class GameModel : MonoBehaviour
     {
         InputHandler.HandleInputs();
         CameraHandler.Update();
+        DisasterHandler.Update();
 
         switch (GameState)
         {
@@ -91,7 +97,9 @@ public class GameModel : MonoBehaviour
                 foreach(Building b in Buildings)
                     if (b.Health > 0 && b.CycleActionTime < CycleTime && b.CycleActionTime >= _lastUpdateCycleTime) b.CycleAction();
                 foreach (Disaster d in CycleDisasters)
-                    if (d.CycleTime < CycleTime && d.CycleTime >= _lastUpdateCycleTime) ShowDisaster(d);
+                    if (d.CycleTime < CycleTime && d.CycleTime >= _lastUpdateCycleTime) DisastersToShow.Enqueue(d);
+
+                if (DisastersToShow.Count > 0) ShowDisaster(DisastersToShow.Dequeue());
 
                 // New day
                 if (CurCycleRealTime >= CYCLE_REAL_TIME) StartNewDay();
@@ -124,8 +132,8 @@ public class GameModel : MonoBehaviour
                     _disasterTime += Time.deltaTime;
                     if (_disasterTime > DISASTER_START_TIME_OFFSET)
                     {
-                        ActiveDisaster.State = DisasterState.Occuring;
                         ActiveDisaster.CastVisualEffect();
+                        ActiveDisaster.State = DisasterState.Occuring;
                         ActiveDisaster.ApplyEffect();
                         GameState = GameState.DisasterOccuring;
                         _disasterTime = 0f;
@@ -191,10 +199,10 @@ public class GameModel : MonoBehaviour
         RemoveGold(b.RepairCost, b);
     }
 
-    public void DealDamage(Tile t, int dmg)
+    public int DealDamage(Tile t, int dmg)
     {
-        if (dmg == 0) return;
-        t.TakeDamage(dmg);
+        if (dmg == 0) return 0;
+        return t.TakeDamage(dmg);
     }
 
     public void IncreaseStability(float amount, Building source = null)
@@ -239,8 +247,8 @@ public class GameModel : MonoBehaviour
 
     private void DoChangeInstability(float amount)
     {
-        StarInstabilityLevel += amount;
-        StarInstabilityLevel = Mathf.Clamp(StarInstabilityLevel, 0, GameSettings.MaxInstability);
+        InstabilityLevel += amount;
+        InstabilityLevel = Mathf.Clamp(InstabilityLevel, 0, GameSettings.MaxInstability);
         GameUI.UpdateInstabilityPanel();
     }
 
@@ -288,10 +296,18 @@ public class GameModel : MonoBehaviour
         Moon.intensity = 0f;
 
         DayEvent = EventHandler.GetRandomEvent();
-
         ActiveReport = GameUI.InitAndShowMorningReport();
+        ActiveReport.EventTab.UpdateTabColor();
+
+        ResetDailyValues();
 
         GameUI.MenuPanel.UpdatePanel();
+    }
+
+    private void ResetDailyValues()
+    {
+        InstabilityLevel_DayStart = InstabilityLevel;
+        Money_DayStart = Money;
     }
 
     public void EventHandled()
@@ -370,7 +386,7 @@ public class GameModel : MonoBehaviour
         Map.InitializeMap(this, data);
 
         // Init values
-        StarInstabilityLevel = 1;
+        InstabilityLevel = 1;
 
         // Init other elements
         CameraHandler = new CameraHandler(this);
@@ -397,6 +413,8 @@ public class GameModel : MonoBehaviour
 
         // Set camera position
         CameraHandler.FocusVisibleTiles();
+
+        ResetDailyValues();
 
         GameUI.Initialize(this);
 
@@ -445,11 +463,11 @@ public class GameModel : MonoBehaviour
 
     #region Getters
 
-    public List<Building> Cities
+    public List<Building_City> Cities
     {
         get
         {
-            return Buildings.Where(x => x.GetType() == typeof(Building_City)).ToList();
+            return Buildings.Where(x => x.GetType() == typeof(Building_City)).Select(x => (Building_City)x).ToList();
         }
     }
     public List<Building> PlayerBuildings
@@ -496,6 +514,9 @@ public class GameModel : MonoBehaviour
             return Buildings.Sum(x => x.EmissionsPerCycle);
         }
     }
+
+    public int MoneyChangeThisCycle { get { return Money - Money_DayStart; } }
+    public float InstabilityChangeThisCycle { get { return InstabilityLevel - InstabilityLevel_DayStart; } }
 
     #endregion
 
